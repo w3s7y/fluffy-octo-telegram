@@ -1,6 +1,6 @@
 # fluffy-octo-telegram
 
-Basically blank Python [Django](https://docs.djangoproject.com/en/4.0/)
+[Django](https://docs.djangoproject.com/en/4.0/)
 web-app with a single `api` app inside and a few tests that can be
 ran against the api app.
 
@@ -15,12 +15,16 @@ of the project.
 
 Then you can run the development server using the command `python mysite/manage.py runserver`
 this will start the [local dev server](http://localhost:8000/) for you to use.  and you can visit
-the only active page [api hello](http://localhost:8000/api/).
+[admin page](http://localhost:8000/api-auth/login)
 
-## Running the projects unit tests
+## Running the api projects unit tests
 
-`python mysite/manage.py test api`
+`python manage.py test api`
 
 ## Jenkinsfile
 
-# TODO
+Very basic currently, has three stages:
+* running api tests
+* tagging git repo with build number
+
+
