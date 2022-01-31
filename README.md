@@ -17,9 +17,9 @@ Then you can run the development server using the command `python mysite/manage.
 this will start the [local dev server](http://localhost:8000/) for you to use.  and you can visit
 [admin page](http://localhost:8000/api-auth/login)
 
-## Running the api projects unit tests
+## Running the projects unit tests (full)
 
-`python manage.py test api`
+`python manage.py test`
 
 ## Jenkinsfile
 
