@@ -14,7 +14,8 @@ class ClientList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Generi
         return self.create(request, *args, **kwargs)
 
 
-class ClientDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class ClientDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                   generics.GenericAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
 
