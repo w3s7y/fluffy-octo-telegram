@@ -9,9 +9,9 @@ metadata:
 spec:
   project: vets
   source:
-    chart: deploy-descriptors/application
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: develop
+    path: deploy-descriptors/application
     helm:
       releaseName: dev-vets
       valueFiles:
@@ -30,9 +30,9 @@ metadata:
 spec:
   project: vets
   source:
-    chart: deploy-descriptors/application
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: master
+    path: deploy-descriptors/application
     helm:
       releaseName: production-vets
       valueFiles:
