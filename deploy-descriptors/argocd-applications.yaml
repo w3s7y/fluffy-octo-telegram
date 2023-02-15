@@ -9,7 +9,9 @@ metadata:
 spec:
   project: vets
   syncPolicy:
-    automated: {}
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
   source:
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: develop
@@ -31,6 +33,9 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   project: vets
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
   source:
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: master
