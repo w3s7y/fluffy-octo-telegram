@@ -28,13 +28,12 @@ spec:
     kind: LimitRange
   - group: ''
     kind: NetworkPolicy
-  # Deny all namespaced-scoped resources from being created, except for Deployment and StatefulSet
   namespaceResourceWhitelist:
-  - group: 'apps'
+  - group: '*'
     kind: Deployment
-  - group: 'apps'
+  - group: '*'
     kind: Service
-  - group: 'apps'
+  - group: '*'
     kind: Secret
   roles:
   # A role which provides read-only access to all applications in the project
