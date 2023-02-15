@@ -1,0 +1,6 @@
+---
+environment: dev
+database:
+  image: postgres
+  version: 15.2-alpine
+  password: "a2FyUnhJUGFuVUNsVmxuWQ=="

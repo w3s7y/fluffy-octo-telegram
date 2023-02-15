@@ -1,0 +1,42 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-vets
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: vets
+  source:
+    repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
+    targetRevision: develop
+    path: deploy-descriptors/application
+    helm:
+      releaseName: dev-vets
+      valueFiles:
+        - values-dev.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: dev-vets
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: production-vets
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: vets
+  source:
+    repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
+    targetRevision: master
+    path: deploy-descriptors/application
+    helm:
+      releaseName: production-vets
+      valueFiles:
+        - values-prod.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: production-vets

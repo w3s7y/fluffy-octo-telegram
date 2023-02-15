@@ -32,4 +32,12 @@ The following is a list and quick description of the apps in this project.
 
 
 ## Argo-CD integration
+Under the `deploy-descriptors` dir there are some `argocd-*.yaml` files which are used to deploy the top-level project
+and then the application sets in that project to argocd.
 
+Think: `kubectl apply -f deploy-descriptors/argocd-*.yaml`
+
+This will deploy the deployment pipelines to argocd.  Current configuration is roughly like this: 
+
+git master branch -> prod-vets namespace -> synced manually 
+git develop branch -> dev-vets namespace -> synced automatically 
