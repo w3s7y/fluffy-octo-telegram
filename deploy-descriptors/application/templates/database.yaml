@@ -5,7 +5,6 @@ data:
 kind: Secret
 metadata:
   name: {{ .Release.Name }}-db-pass
-  namespace: {{ .Values.environment }}-{{ .Release.Name }}
 type: Opaque
 ---
 apiVersion: apps/v1
