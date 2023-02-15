@@ -8,6 +8,8 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   project: vets
+  syncPolicy:
+    automated: {}
   source:
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: develop
