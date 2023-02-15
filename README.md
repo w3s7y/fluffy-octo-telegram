@@ -79,7 +79,7 @@ Full docs can be found [here for the workflow stack](https://argoproj.github.io/
 ### build-descriptors subdirectory
 This subdirectory contains a directory for each workflow in argo.  So deployment of the build pipeline is a simple
 ```shell
-kubectl apply -n argo -f build-descriptors/vets/argo.yaml
+kubectl apply -n argo -f build-descriptors/vets/workflow.yaml
 ```
 This will deploy the build pipeline for the vets application to argo. 
 
