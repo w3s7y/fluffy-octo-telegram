@@ -1,7 +1,7 @@
 ---
 apiVersion: v1
 data:
-  password: {{ .Values.database.password }}
+  POSTGRES_PASSWORD: {{ .Values.database.password }}
 kind: Secret
 metadata:
   name: {{ .Release.Name }}-db-pass
@@ -27,14 +27,9 @@ spec:
         name: {{ .Release.Name }}-db
         ports:
         - containerPort: {{ .Values.database.port }}
-        env:
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-db-pass
-                key: password
-          - name: POSTGRES_PORT
-            value: {{ .Values.database.port }}
+        envFrom:
+          - secretRef:
+            name: {{ .Release.Name }}-db-pass
 ---
 apiVersion: v1
 kind: Service
