@@ -3,5 +3,5 @@ environment: production
 database:
   image: postgres
   version: 15.2-alpine
-  password: nothing
+  password: "a2FyUnhJUGFuVUNsVmxuWQ=="
   port: 5432
