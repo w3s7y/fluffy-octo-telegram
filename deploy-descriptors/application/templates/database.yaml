@@ -23,13 +23,13 @@ spec:
         app: {{ .Release.Name }}-db
     spec:
       containers:
-      - image: {{ .Values.database.image }}:{{ .Values.database.version }}
-        name: {{ .Release.Name }}-db
-        ports:
-        - containerPort: {{ .Values.database.port }}
-        envFrom:
-        - secretRef:
-            name: {{ .Release.Name }}-db-pass
+        - name: {{ .Release.Nam }}-db
+          image: {{ .Values.database.image }}:{{ .Values.database.version }}
+          ports:
+          - containerPort: {{ .Values.database.port }}
+          envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-db-pass
 
 ---
 apiVersion: v1
