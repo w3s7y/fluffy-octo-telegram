@@ -1,0 +1,5 @@
+---
+apiVersion: v2
+name: vets
+description: Chart to deploy the vets environments into k8s through argoCD
+type: application

@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vets
+  name: {{ .Release.Name }}-db
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: vets
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: vets
+        app: {{ .Release.Name }}
     spec:
       containers:
       - image: theshipyard/vets-app:0.0.2
-        name: vets
+        name: {{ .Release.Name }}
         ports:
         - containerPort: 8000
