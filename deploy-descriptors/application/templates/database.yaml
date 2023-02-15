@@ -1,11 +1,11 @@
 ---
 apiVersion: v1
 data:
-  password: {{ database.password }}
+  password: {{ .Values.database.password }}
 kind: Secret
 metadata:
   name: {{ .Release.Name }}-db-pass
-  namespace: {{ environment }}-{{ .Release.Name }}
+  namespace: {{ .Values.environment }}-{{ .Release.Name }}
 type: Opaque
 ---
 apiVersion: apps/v1
@@ -24,7 +24,7 @@ spec:
         app: {{ .Release.Name }}-db
     spec:
       containers:
-      - image: {{ database.image }}:{{ database.version }}
+      - image: {{ .Values.database.image }}:{{ .Values.database.version }}
         name: {{ .Release.Name }}-db
         ports:
         - containerPort: {{ database.port }}
@@ -35,7 +35,7 @@ spec:
                 name: {{ .Release.Name }}-db-pass
                 key: password
           - name: POSTGRES_PORT
-            value: {{ database.port }}
+            value: {{ .Values.database.port }}
 ---
 apiVersion: v1
 kind: Service
@@ -43,7 +43,7 @@ metadata:
   name: {{ .Release.Name }}-db
 spec:
   ports:
-  - port: {{ database.port }}
-    targetPort: {{ database.port }}
+  - port: {{ .Values.database.port }}
+    targetPort: {{ .Values.database.port }}
   selector:
     app: {{ .Release.Name }}-db
