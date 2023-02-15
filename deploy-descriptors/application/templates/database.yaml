@@ -27,7 +27,7 @@ spec:
       - image: {{ .Values.database.image }}:{{ .Values.database.version }}
         name: {{ .Release.Name }}-db
         ports:
-        - containerPort: {{ database.port }}
+        - containerPort: {{ .Values.database.port }}
         env:
           - name: POSTGRES_PASSWORD
             valueFrom:
