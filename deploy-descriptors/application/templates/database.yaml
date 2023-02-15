@@ -28,7 +28,7 @@ spec:
         ports:
         - containerPort: {{ .Values.database.port }}
         envFrom:
-          - secretRef:
+          secretRef:
             name: {{ .Release.Name }}-db-pass
 ---
 apiVersion: v1
