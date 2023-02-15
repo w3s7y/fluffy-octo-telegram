@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: develop
-    path: deploy-descriptors/application
+    path: deploy-descriptors/vets/chart
     helm:
       releaseName: dev-vets
       valueFiles:
@@ -39,7 +39,7 @@ spec:
   source:
     repoURL: 'git@github.com:w3s7y/fluffy-octo-telegram.git'
     targetRevision: master
-    path: deploy-descriptors/application
+    path: deploy-descriptors/vets/chart
     helm:
       releaseName: production-vets
       valueFiles:
