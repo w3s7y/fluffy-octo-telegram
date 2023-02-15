@@ -29,7 +29,8 @@ spec:
         - containerPort: {{ .Values.database.port }}
         envFrom:
         - secretRef:
-          name: {{ .Release.Name }}-db-pass
+            name: {{ .Release.Name }}-db-pass
+
 ---
 apiVersion: v1
 kind: Service
