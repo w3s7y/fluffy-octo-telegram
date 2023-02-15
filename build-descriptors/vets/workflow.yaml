@@ -1,1 +1,18 @@
 ---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: vets-workflow
+spec:
+  entrypoint: vets-ci-workflow
+  templates:
+  - name: vets-ci-workflow
+    steps:
+    - - name: test-vets
+        template: test-vets
+
+  - name: test-vets
+    container:
+      image: python:alpine3.16
+      command: [sh, -c]
+      args: ["echo hello"]
