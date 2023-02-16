@@ -131,7 +131,7 @@ spec:
   - group: 'admissionregistration.k8s.io/v1'
     kind: MutatingWebhookConfiguration
     jsonPointers:
-    - /webhooks/clientConfig
+    - "/webhooks/0/clientConfig/caBundle" # This still doesn't work to ignore the diff.  Probably a bad jsonPointer
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
