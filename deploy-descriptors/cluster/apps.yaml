@@ -22,6 +22,7 @@ spec:
   - 'https://charts.bitnami.com/bitnami'
   - 'https://helm.elastic.co'
   - 'https://helm.releases.hashicorp.com'
+  - 'https://jp-gouin.github.io/helm-openldap'
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc
@@ -208,3 +209,32 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kafka
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openldap
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://jp-gouin.github.io/helm-openldap
+    chart: openldap-stack-ha
+    targetRevision: 4.1.0
+    helm:
+      parameters:
+      - name: ltb-passwd.ingress.enabled
+        value: "true"
+      - name: phpldapadmin.ingress.enabled
+        value: "true"
+      - name: phpldapadmin.ingress.hosts
+        value: "*"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: openldap
