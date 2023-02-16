@@ -124,6 +124,10 @@ spec:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault
     targetRevision: 0.23.0
+    helm:
+      parameters:
+      - name: "injector.enabled"
+        value: "true"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: vault
@@ -131,7 +135,7 @@ spec:
   - group: 'admissionregistration.k8s.io/v1'
     kind: MutatingWebhookConfiguration
     jsonPointers:
-    - "/webhooks/0/clientConfig/caBundle" # This still doesn't work to ignore the diff.  Probably a bad jsonPointer
+    - /webhooks/clientConfig/caBundle
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
