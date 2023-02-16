@@ -53,10 +53,15 @@ spec:
       syncOptions:
       - CreateNamespace=true
       - Prune=true
+      # Hack for https://github.com/w3s7y/fluffy-octo-telegram/issues/15
+      - Replace=false
+      - ServerSideApply=true
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
     targetRevision: 45.1.0
+    helm:
+      skipCrds: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring
@@ -123,3 +128,45 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: vault
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: elastic-stack
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://helm.elastic.co
+    chart: eck-operator
+    targetRevision: 2.6.1
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: logging
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: kafka
+    targetRevision: 20.0.6
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: kafka
