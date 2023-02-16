@@ -1,6 +1,6 @@
 # This argocd set of applications deploys the cluster wide services, currently:
-# prometheus-stack & grafana in a monitoring namespace
-# elastic-stack (the eck-operator) in a logging namespace
+# kube-prometheus-stack chart in a monitoring namespace
+# elastic-stack (the eck-operator & eck-stack charts) in a logging namespace
 # a kafka instance for playing with argo-events
 # argo-events
 # argo-workflow (ci)
@@ -22,7 +22,6 @@ spec:
   - 'https://charts.bitnami.com/bitnami'
   - 'https://helm.elastic.co'
   - 'https://helm.releases.hashicorp.com'
-  - 'https://kubernetes-sigs.github.io/metrics-server'
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc
@@ -178,9 +177,12 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: logging
+  # As certs are auto generated in test, ignore the generated certs which cause OutOfSync errors in argocd
   ignoreDifferences:
   - group: 'admissionregistration.k8s.io/v1'
     kind: MutatingWebhookConfiguration
+    jsonPointers:
+    - /webhooks/clientConfig/caBundle
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
