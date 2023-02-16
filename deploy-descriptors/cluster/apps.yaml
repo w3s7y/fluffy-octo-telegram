@@ -1,0 +1,125 @@
+# This argocd set of applications deploys the cluster wide services, currently:
+# prometheus-stack & grafana in a monitoring namespace
+# elastic-stack (the eck-operator) in a logging namespace
+# a kafka instance for playing with argo-events
+# argo-events
+# argo-workflow (ci)
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cluster-services
+  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Top level argocd project to contain all the tooling deployed to the cluster.
+  # Allow manifests to deploy from any Git repos
+  sourceRepos:
+  - 'git@github.com:w3s7y/fluffy-octo-telegram.git'
+  - 'https://prometheus-community.github.io/helm-charts'
+  - 'https://argoproj.github.io/argo-helm'
+  - 'https://charts.bitnami.com/bitnami'
+  - 'https://helm.elastic.co'
+  - 'https://helm.releases.hashicorp.com'
+  - 'https://kubernetes-sigs.github.io/metrics-server'
+  destinations:
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRoleBinding
+    - group: 'apiextensions.k8s.io'
+      kind: CustomResourceDefinition
+    - group: 'rbac.authorization.k8s.io'
+      kind: ClusterRole
+    - group: 'admissionregistration.k8s.io'
+      kind: MutatingWebhookConfiguration
+    - group: 'admissionregistration.k8s.io'
+      kind: ValidatingWebhookConfiguration
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 45.1.0
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: monitoring
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-workflows
+    targetRevision: 0.22.11
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argo-workflows
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-events
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-events
+    targetRevision: 2.1.2
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argo-events
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hashicorp-vault
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.23.0
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: vault

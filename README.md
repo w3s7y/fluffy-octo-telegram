@@ -50,49 +50,34 @@ The following is a list and quick description of the django applications in this
 | vets          | The "main" application.  A pretend backend API for a vets surgery (including checking in and out clients pets, surgery times, vet timetables etc.) |
 | vets-ui       | Currently not there (future playing around) will be the UI for the frontend in some language or other if I ever get there                          | 
 
-## CI / CD
-The project was originally built and deployed to a target environment via Jenkinsfile.  
-I got sick of Jenkins and was told about [argocd](https://argo-cd.readthedocs.io/en/stable/) and 
-[argo-workflows](https://argoproj.github.io/argo-workflows/) which are CI/CD tooling built for the k8s platform 
-in that the argo resources are implemented as k8s Crds so very easy to deploy, update and generally just work with.
-
-It was also deployed to k8s originally via arbitrary `kubectl` commands using static deploy specs.  This isn't very
-"real world" so again I have gone for [helm](https://helm.sh/) which allows much more flexibility in customizing a 
-deployment.
-
-### Deploying argo-workflow (ci) and argocd to your cluster
+## Deploying argocd to the cluster
 Pretty simple job, just run the following to deploy the latest and greatest Argo CD stack: 
 ```shell
 kubectl create ns argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
-
-And this lot to deploy the workflow (CI) part of argo:
-```shell
-kubectl create ns argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.4.5/install.yaml
-```
+Wait for this to all come up
 
 Full docs can be found [here for the workflow stack](https://argoproj.github.io/argo-workflows/) and 
 [here for the CD stack](https://argo-cd.readthedocs.io/en/stable/).
+
+## Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
+Done as an argocd project and set of apps just run:
+```shell
+kubectl apply -n argocd -f deploy-descriptors/cluster/apps.yaml
+```
+This deploys a lot to the cluster!  have at least 10gb of memory free!
 
 ### build-descriptors subdirectory
 This subdirectory contains a directory for each workflow in argo.  So deployment of the build pipeline is a simple
 ```shell
 kubectl apply -n argo -f build-descriptors/vets/workflow.yaml
 ```
-This will deploy the build pipeline for the vets application to argo. 
+This will submit a workflow to argo for the vets application to be tested, built and pushed 
 
-### deploy-descriptors subdirectory
-Much like the build-descriptors held the build pipeline code, this contains all the pipeline code pertaining to deployment of a 
-built image to the k8s cluster from dockerhub.  Every argocd project has its own subdirectory and then under that will
-be a `chart` directory which contains the helm chart to deploy.
-
-To 
+### Deploying CD pipelines for vets app
 ```shell
 kubectl apply -n argocd -f deploy-descriptors/vets/argocd.yaml
 ```
-This will deploy the deployment pipelines to argocd.  Current configuration is roughly like this: 
-
-git master branch -> production-vets namespace -> synced manually 
-git develop branch -> dev-vets namespace -> synced automatically 
+This will create the deployment pipelines for two envs of vets app in the cluster which uses the helm chart from the 
+same directory to deploy.
