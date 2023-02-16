@@ -178,6 +178,9 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: logging
+  ignoreDifferences:
+  - group: 'admissionregistration.k8s.io/v1'
+    kind: MutatingWebhookConfiguration
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
