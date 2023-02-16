@@ -127,6 +127,11 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: vault
+  ignoreDifferences:
+  - group: 'admissionregistration.k8s.io/v1'
+    kind: MutatingWebhookConfiguration
+    jsonPointers:
+    - /webhooks/clientConfig
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
