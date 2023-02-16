@@ -62,6 +62,24 @@ Full docs can be found [here for the workflow stack](https://argoproj.github.io/
 [here for the CD stack](https://argo-cd.readthedocs.io/en/stable/).
 
 ## Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
+
+### Elasticsearch trial enterprise license
+```shell
+kubectl create ns logging
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eck-trial-license
+  namespace: logging
+  labels:
+    license.k8s.elastic.co/type: enterprise_trial
+  annotations:
+    elastic.co/eula: accepted
+EOF
+```
+
+### deploy all the cluster-wide services
 Done as an argocd project and set of apps just run:
 ```shell
 kubectl apply -n argocd -f deploy-descriptors/cluster/apps.yaml
@@ -71,7 +89,7 @@ This deploys a lot to the cluster!  have at least 10gb of memory free!
 ### build-descriptors subdirectory
 This subdirectory contains a directory for each workflow in argo.  So deployment of the build pipeline is a simple
 ```shell
-kubectl apply -n argo -f build-descriptors/vets/workflow.yaml
+kubectl apply -n argo-workflows -f build-descriptors/vets/workflow.yaml
 ```
 This will submit a workflow to argo for the vets application to be tested, built and pushed 
 

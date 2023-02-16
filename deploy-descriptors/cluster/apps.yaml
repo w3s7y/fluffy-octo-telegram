@@ -1,6 +1,6 @@
 # This argocd set of applications deploys the cluster wide services, currently:
-# prometheus-stack & grafana in a monitoring namespace
-# elastic-stack (the eck-operator) in a logging namespace
+# kube-prometheus-stack chart in a monitoring namespace
+# elastic-stack (the eck-operator & eck-stack charts) in a logging namespace
 # a kafka instance for playing with argo-events
 # argo-events
 # argo-workflow (ci)
@@ -22,7 +22,7 @@ spec:
   - 'https://charts.bitnami.com/bitnami'
   - 'https://helm.elastic.co'
   - 'https://helm.releases.hashicorp.com'
-  - 'https://kubernetes-sigs.github.io/metrics-server'
+  - 'https://jp-gouin.github.io/helm-openldap'
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc
@@ -121,13 +121,48 @@ spec:
       syncOptions:
       - CreateNamespace=true
       - Prune=true
+      - RespectIgnoreDifferences=true
   source:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault
     targetRevision: 0.23.0
+    helm:
+      parameters:
+      - name: "injector.enabled"
+        value: "true"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: vault
+  ignoreDifferences:
+  - group: 'admissionregistration.k8s.io'
+    kind: MutatingWebhookConfiguration
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: elastic-operator
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://helm.elastic.co
+    chart: eck-operator
+    targetRevision: 2.6.1
+    helm:
+      parameters:
+      - name: "webhook.enabled"
+        value: "false"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: logging
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -144,8 +179,12 @@ spec:
       - Prune=true
   source:
     repoURL: https://helm.elastic.co
-    chart: eck-operator
-    targetRevision: 2.6.1
+    chart: eck-stack
+    targetRevision: 0.3.0
+    helm:
+      parameters:
+      - name: "webhook.enabled"
+        value: "true"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: logging
@@ -170,3 +209,32 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kafka
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openldap
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cluster-services
+  syncPolicy:
+      automated: {}
+      syncOptions:
+      - CreateNamespace=true
+      - Prune=true
+  source:
+    repoURL: https://jp-gouin.github.io/helm-openldap
+    chart: openldap-stack-ha
+    targetRevision: 4.1.0
+    helm:
+      parameters:
+      - name: ltb-passwd.ingress.enabled
+        value: "true"
+      - name: phpldapadmin.ingress.enabled
+        value: "true"
+      - name: phpldapadmin.ingress.hosts
+        value: "*"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: openldap
