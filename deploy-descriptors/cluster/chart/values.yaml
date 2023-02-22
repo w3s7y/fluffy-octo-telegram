@@ -16,7 +16,8 @@ prometheus_stack:
   repo: https://prometheus-community.github.io/helm-charts
 
 ingress:
-  argocd:
-    backend:
-      name: argocd-server.argocd.cluster.internal
-      port: 80
+- argocd:
+  name: argocd
+  backend:
+    name: argocd-server
+    port: 80

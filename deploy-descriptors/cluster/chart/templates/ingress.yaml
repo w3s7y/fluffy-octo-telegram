@@ -1,14 +1,14 @@
+{{- range .Values.ingress }}
 ---
-{{- with .Values.ingress }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-{{ . }}-ingress
+  name: {{ .name }}-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: {{ .rewrite_target | default "/" | quote }}
 spec:
   rules:
-  - host: {{ . }}.{{ .Values.internal_domain_name }}
+  - host: {{ .name }}.{{ $.Values.internal_domain_name }}
     http:
       paths:
       - path: {{ .path | default "/" | quote }}
