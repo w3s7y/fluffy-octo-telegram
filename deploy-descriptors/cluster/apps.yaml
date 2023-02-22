@@ -18,6 +18,7 @@ spec:
   sourceRepos:
   - 'git@github.com:w3s7y/fluffy-octo-telegram.git'
   - 'https://prometheus-community.github.io/helm-charts'
+  - 'https://artifacthub.github.io/helm-charts'
   - 'https://argoproj.github.io/argo-helm'
   - 'https://charts.bitnami.com/bitnami'
   - 'https://helm.elastic.co'
@@ -228,13 +229,20 @@ spec:
     chart: openldap-stack-ha
     targetRevision: 4.1.0
     helm:
-      parameters:
-      - name: ltb-passwd.ingress.enabled
-        value: "true"
-      - name: phpldapadmin.ingress.enabled
-        value: "true"
-      - name: phpldapadmin.ingress.hosts
-        value: "*"
+      values: |
+        phpldapadmin:
+          env: {}
+          ingress:
+            enabled: "true"
+            path: /
+            hosts:
+              - admin.vets.internal
+        ltb-passwd:
+          ingress:
+            enabled: "true"
+            path: /
+            hosts:
+              - reset.vets.internal
   destination:
     server: "https://kubernetes.default.svc"
     namespace: openldap

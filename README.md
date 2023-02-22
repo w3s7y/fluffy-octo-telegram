@@ -15,17 +15,24 @@ models for a `client`, a `vet`, a `pet`, `appointment` and so on.
 
 As this is my own project the requirements are fairly simple and only used as a rough guide to what I want to achieve 
 here.  
-I have mapped them out as [several user stories](https://github.com/w3s7y/fluffy-octo-telegram/issues?q=label%3Astory) 
-for ease of delivery.
+I have mapped them out as [user stories](https://github.com/w3s7y/fluffy-octo-telegram/issues?q=label%3Astory)
 
 ## Testing out / running the project
 Ensure you have all the project dependencies installed in your python 
 virtualenv by running `pip install -r application/requirements.txt` from the root
 of the project.
 
-Then you can run the development server using the command `python application/manage.py runserver`
-this will start the [local dev server](http://localhost:8000/admin) for you to use.  and you can visit
-[admin page](http://localhost:8000/api-auth/login)
+Apply the migrations to the database:
+```shell
+python application/manage.py migrate
+```
+
+Then you can run the development server using the command 
+```shell
+python application/manage.py runserver
+```
+this will start the [local server](http://localhost:8000/vets/vets/) for you to use.  and you can visit the
+[admin page](http://localhost:8000/api-auth/login?next=/admin)
 
 ## Running the projects unit tests (all tests in all apps)
 `python application/manage.py test`
@@ -34,7 +41,7 @@ this will start the [local dev server](http://localhost:8000/admin) for you to u
 You _should_ never really need to do this as the image is built and deployed to dockerhub 
 as part of the build pipeline, but it is here for completeness. 
 ```shell
-docker build -t theshipyard/vets-app:<some tag> .
+docker build -t vets-app:<some tag> .
 ```
 Where `some tag` is just the image tag, if you are testing something _really_ out there please avoid the semver tags and 
 use something personal like `bw-my-super-janky-build` and delete the tag from the hub when you are finished. 

@@ -1,6 +1,7 @@
 FROM python:alpine3.16
 MAINTAINER theshipyard
 
+
 RUN apk update \
 	&& apk add postgresql-client
 
