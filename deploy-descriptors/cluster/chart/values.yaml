@@ -18,6 +18,7 @@ prometheus_stack:
 ingress:
 - argocd:
   name: argocd
+  ssl_passthrough: true
   backend:
     name: argocd-server
     port: 80

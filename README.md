@@ -89,7 +89,7 @@ EOF
 ### deploy all the cluster-wide services
 Done as an argocd project and set of apps just run:
 ```shell
-kubectl apply -n argocd -f deploy-descriptors/cluster/apps.yaml
+helm install cluster-services deploy-descriptors/cluster/chart --namespace argocd
 ```
 This deploys a lot to the cluster!  have at least 10gb of memory free!
 

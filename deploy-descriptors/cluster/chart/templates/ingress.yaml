@@ -6,6 +6,10 @@ metadata:
   name: {{ .name }}-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: {{ .rewrite_target | default "/" | quote }}
+    {{- if .ssl_passthrough | default false }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    {{- end }}
 spec:
   rules:
   - host: {{ .name }}.{{ $.Values.internal_domain_name }}

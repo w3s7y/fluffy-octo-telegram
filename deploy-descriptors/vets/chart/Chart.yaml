@@ -4,3 +4,4 @@ name: vets
 description: Chart to deploy the vets environments into k8s
 type: application
 version: 0.0.1
+icon: "https://production.vets/favicon.ico"
