@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+name: cluster-services
+description: Chart to deploy the ancillary services to the cluster
+type: application
+version: 0.0.1

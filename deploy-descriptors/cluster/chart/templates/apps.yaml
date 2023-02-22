@@ -58,9 +58,9 @@ spec:
       - Replace=false
       - ServerSideApply=true
   source:
-    repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: 45.1.0
+    repoURL: {{ .Values.prometheus_stack.repo }}
+    chart: {{ .Values.prometheus_stack.chart }}
+    targetRevision: {{ .Values.prometheus_stack.version }}
     helm:
       skipCrds: false
   destination:
