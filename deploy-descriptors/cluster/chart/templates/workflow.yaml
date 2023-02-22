@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: cluster-bootstrap-workflow
+spec:
+  entrypoint: cluster-tasks
+  templates:
+  - name: cluster-tasks
+    dag:
+      tasks:
+      - name: kubectl-apply-apps-yaml
+        template: kapply-apps
+      - name: add-vets-cd-pipeline
+        template: kapply-vets-pipeline
+        depenencies: [kubectl-apply-apps-yaml]
+      - name:
+
+  - name: kapply-apps
+    container:
+      image: python:alpine3.16
+      command: [sh, -c]
+      args: ["echo hello"]

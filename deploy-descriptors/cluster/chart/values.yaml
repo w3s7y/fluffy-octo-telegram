@@ -1,0 +1,24 @@
+---
+internal_domain_name: vets.internal
+source_repos:
+- 'git@github.com:w3s7y/fluffy-octo-telegram.git'
+- 'https://prometheus-community.github.io/helm-charts'
+- 'https://artifacthub.github.io/helm-charts'
+- 'https://argoproj.github.io/argo-helm'
+- 'https://charts.bitnami.com/bitnami'
+- 'https://helm.elastic.co'
+- 'https://helm.releases.hashicorp.com'
+- 'https://jp-gouin.github.io/helm-openldap'
+
+prometheus_stack:
+  version: 45.1.0
+  chart: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+
+ingress:
+- argocd:
+  name: argocd
+  ssl_passthrough: true
+  backend:
+    name: argocd-server
+    port: 80
