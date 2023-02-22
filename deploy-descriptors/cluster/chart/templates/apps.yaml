@@ -1,7 +1,7 @@
 # This argocd set of applications deploys the cluster wide services, currently:
 # kube-prometheus-stack chart in a monitoring namespace
 # elastic-stack (the eck-operator & eck-stack charts) in a logging namespace
-# a kafka instance for playing with argo-events
+# a kafka instance for playing with event driven architecture.
 # argo-events
 # argo-workflow (ci)
 ---
