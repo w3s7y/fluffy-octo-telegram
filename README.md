@@ -57,18 +57,21 @@ The following is a list and quick description of the django applications in this
 | vets          | The "main" application.  A pretend backend API for a vets surgery (including checking in and out clients pets, surgery times, vet timetables etc.) |
 | vets-ui       | Currently not there (future playing around) will be the UI for the frontend in some language or other if I ever get there                          | 
 
-## Deploying argocd to the cluster
-Pretty simple job, just run the following to deploy the latest and greatest Argo CD stack: 
+## Deploying the cluster
+I will skip over the installation of minikube or whatever other kubernetes offering you are using.  It is assumed 
+you cluster is already up, has `ingress-nginx` installed, and you can `kubectl` it. 
+
+### Deploying ArgoCD
+As argoCD is the main driver for deploying, just run the following to deploy the latest and greatest Argo CD stack: 
 ```shell
 kubectl create ns argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl wait --for=condition=Available=true deployment/argocd-server -n argocd
 ```
-Wait for this to all come up
+Full docs can be found [here](https://argo-cd.readthedocs.io/en/stable/).
 
-Full docs can be found [here for the workflow stack](https://argoproj.github.io/argo-workflows/) and 
-[here for the CD stack](https://argo-cd.readthedocs.io/en/stable/).
-
-## Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
+### Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
+First up are a few config objects and secrets which will be used by upcoming deployments:
 
 ### Elasticsearch trial enterprise license
 ```shell
@@ -87,22 +90,36 @@ EOF
 ```
 
 ### deploy all the cluster-wide services
-Done as an argocd project and set of apps just run:
+Done as an argocd project and set of apps all wrapped up in a helm chart just run:
 ```shell
 helm install cluster-services deploy-descriptors/cluster/chart --namespace argocd
 ```
 This deploys a lot to the cluster!  have at least 10gb of memory free!
 
-### build-descriptors subdirectory
-This subdirectory contains a directory for each workflow in argo.  So deployment of the build pipeline is a simple
-```shell
-kubectl apply -n argo-workflows -f build-descriptors/vets/workflow.yaml
-```
-This will submit a workflow to argo for the vets application to be tested, built and pushed 
-
-### Deploying CD pipelines for vets app
+### Deploying CD pipelines for vets-app
 ```shell
 kubectl apply -n argocd -f deploy-descriptors/vets/argocd.yaml
 ```
 This will create the deployment pipelines for two envs of vets app in the cluster which uses the helm chart from the 
 same directory to deploy.
+
+In the current configuration, the `dev` environment uses the `develop` branch and the `production` environment uses
+`master` as its source for deployment charts.
+
+## Accessing the cluster http services (minikube)
+To do this I use `minikube tunnel` which exposes the clusters ingress objects over localhost 
+so just some local host file hacks are the simplest way for quick and dirty testing. 
+
+```shell
+# Hosts for fluffy-octo
+127.0.0.1	dev.vets production.vets
+# ci/cd entries
+127.0.0.1	argocd.vets.internal workflows.vets.internal 
+# Logging
+127.0.0.1	kibana.vets.internal 
+# Monitoring
+127.0.0.1 	grafana.vets.internal alertmanager.vets.internal prometheus.vets.internal 
+# user admin / secrets
+127.0.0.1	reset.vets.internal admin.vets.internal vault.vets.internal
+```
+Then you can use `https://` for all the endpoints as the ingress controller deploys its own self-signed cert. 

@@ -1,20 +1,12 @@
-# This argocd set of applications deploys the cluster wide services, currently:
-# kube-prometheus-stack chart in a monitoring namespace
-# elastic-stack (the eck-operator & eck-stack charts) in a logging namespace
-# a kafka instance for playing with event driven architecture.
-# argo-events
-# argo-workflow (ci)
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: cluster-services
-  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  name: {{ $.Release.Name }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  description: Top level argocd project to contain all the tooling deployed to the cluster.
-  # Allow manifests to deploy from any Git repos
+  description: {{ .Values.project_description }}
   sourceRepos:
   - 'git@github.com:w3s7y/fluffy-octo-telegram.git'
   - 'https://prometheus-community.github.io/helm-charts'
@@ -40,209 +32,33 @@ spec:
       kind: MutatingWebhookConfiguration
     - group: 'admissionregistration.k8s.io'
       kind: ValidatingWebhookConfiguration
+
+{{- range .Values.argo_apps }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: prometheus-stack
+  name: {{ .name }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
-  project: cluster-services
+  project: {{ $.Release.Name }}
   syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-      # Hack for https://github.com/w3s7y/fluffy-octo-telegram/issues/15
-      - Replace=false
-      - ServerSideApply=true
+    automated: {}
+    syncOptions:
+    {{- range .sync_options }}
+    - {{ . | quote }}
+    {{- end }}
   source:
-    repoURL: {{ .Values.prometheus_stack.repo }}
-    chart: {{ .Values.prometheus_stack.chart }}
-    targetRevision: {{ .Values.prometheus_stack.version }}
-    helm:
-      skipCrds: false
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: monitoring
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: argo-workflows
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://argoproj.github.io/argo-helm
-    chart: argo-workflows
-    targetRevision: 0.22.11
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: argo-workflows
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: argo-events
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://argoproj.github.io/argo-helm
-    chart: argo-events
-    targetRevision: 2.1.2
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: argo-events
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: hashicorp-vault
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-      - RespectIgnoreDifferences=true
-  source:
-    repoURL: https://helm.releases.hashicorp.com
-    chart: vault
-    targetRevision: 0.23.0
-    helm:
-      parameters:
-      - name: "injector.enabled"
-        value: "true"
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: vault
-  ignoreDifferences:
-  - group: 'admissionregistration.k8s.io'
-    kind: MutatingWebhookConfiguration
-    jsonPointers:
-    - /webhooks/0/clientConfig/caBundle
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: elastic-operator
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://helm.elastic.co
-    chart: eck-operator
-    targetRevision: 2.6.1
-    helm:
-      parameters:
-      - name: "webhook.enabled"
-        value: "false"
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: logging
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: elastic-stack
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://helm.elastic.co
-    chart: eck-stack
-    targetRevision: 0.3.0
-    helm:
-      parameters:
-      - name: "webhook.enabled"
-        value: "true"
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: logging
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: kafka
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://charts.bitnami.com/bitnami
-    chart: kafka
-    targetRevision: 20.0.6
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: kafka
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: openldap
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: cluster-services
-  syncPolicy:
-      automated: {}
-      syncOptions:
-      - CreateNamespace=true
-      - Prune=true
-  source:
-    repoURL: https://jp-gouin.github.io/helm-openldap
-    chart: openldap-stack-ha
-    targetRevision: 4.1.0
+    repoURL: {{ .repo }}
+    chart: {{ .chart }}
+    targetRevision: {{ .version }}
+    {{- if .helm_values }}
     helm:
       values: |
-        phpldapadmin:
-          env: {}
-          ingress:
-            enabled: "true"
-            path: /
-            hosts:
-              - admin.vets.internal
-        ltb-passwd:
-          ingress:
-            enabled: "true"
-            path: /
-            hosts:
-              - reset.vets.internal
+      {{- toYaml .helm_values | nindent 8 }}
+    {{- end }}
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: openldap
+    namespace: {{ .namespace }}
+{{- end }}
