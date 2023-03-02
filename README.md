@@ -58,8 +58,14 @@ The following is a list and quick description of the django applications in this
 | vets-ui       | Currently not there (future playing around) will be the UI for the frontend in some language or other if I ever get there                          | 
 
 ## Deploying the cluster
-I will skip over the installation of minikube or whatever other kubernetes offering you are using.  It is assumed 
-you cluster is already up, has `ingress-nginx` installed, and you can `kubectl` it. 
+I will skip over the installation of minikube or whatever other kubernetes offering you are using. It is assumed 
+your cluster is already up, has `ingress-nginx` installed, and you can `kubectl` it. 
+
+I use `minikube` to start a 3 node cluster locally and tunnel ingress rules to localhost then you can hit the cluster:
+```shell
+minikube start --nodes 3 --addons ingress metrics-server -p vets
+minikube tunnel -p vets &
+```
 
 ### Deploying ArgoCD
 As argoCD is the main driver for deploying, just run the following to deploy the latest and greatest Argo CD stack: 
@@ -104,11 +110,11 @@ This will create the deployment pipelines for two envs of vets app in the cluste
 same directory to deploy.
 
 In the current configuration, the `dev` environment uses the `develop` branch and the `production` environment uses
-`master` as its source for deployment charts.
+`master` branch as its source for deployment charts.
 
 ## Accessing the cluster http services (minikube)
 To do this I use `minikube tunnel` which exposes the clusters ingress objects over localhost 
-so just some local host file hacks are the simplest way for quick and dirty testing. 
+so just some local host file hacks are the simplest way for quick and dirty testing on a local `minikube` cluster. 
 
 ```shell
 # Hosts for fluffy-octo
@@ -123,3 +129,6 @@ so just some local host file hacks are the simplest way for quick and dirty test
 127.0.0.1	reset.vets.internal admin.vets.internal vault.vets.internal
 ```
 Then you can use `https://` for all the endpoints as the ingress controller deploys its own self-signed cert. 
+
+## Troubleshooting
+
