@@ -1,5 +1,5 @@
 from django.urls import path
-from  vets import views
+from vets import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
 

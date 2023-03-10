@@ -3,7 +3,9 @@ from vets import models
 from vets import serializers
 
 
-class ClientList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class ClientList(mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 generics.GenericAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
 
@@ -14,7 +16,9 @@ class ClientList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Generi
         return self.create(request, *args, **kwargs)
 
 
-class ClientDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+class ClientDetail(mixins.UpdateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.DestroyModelMixin,
                    generics.GenericAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
@@ -29,7 +33,8 @@ class ClientDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.De
         return self.destroy(request, *args, **kwargs)
 
 
-class VetList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class VetList(mixins.ListModelMixin, mixins.CreateModelMixin,
+              generics.GenericAPIView):
     queryset = models.Vet.objects.all()
     serializer_class = serializers.VetSerializer
 
@@ -40,7 +45,8 @@ class VetList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAP
         return self.create(request, *args, **kwargs)
 
 
-class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = models.Vet.objects.all()
     serializer_class = serializers.VetSerializer
 
@@ -54,7 +60,8 @@ class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.Destr
         return self.destroy(request, *args, **kwargs)
 
 
-class PetList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class PetList(mixins.ListModelMixin, mixins.CreateModelMixin,
+              generics.GenericAPIView):
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
 
@@ -65,7 +72,8 @@ class PetList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAP
         return self.create(request, *args, **kwargs)
 
 
-class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
 
@@ -79,7 +87,8 @@ class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.Destr
         return self.destroy(request, *args, **kwargs)
 
 
-class AppointmentList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class AppointmentList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                      generics.GenericAPIView):
     queryset = models.Appointment.objects.all()
     serializer_class = serializers.AppointmentSerializer
 
@@ -90,7 +99,8 @@ class AppointmentList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.G
         return self.create(request, *args, **kwargs)
 
 
-class AppointmentDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+class AppointmentDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                        mixins.DestroyModelMixin,
                         generics.GenericAPIView):
     queryset = models.Appointment.objects.all()
     serializer_class = serializers.AppointmentSerializer
@@ -105,7 +115,8 @@ class AppointmentDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixi
         return self.destroy(request, *args, **kwargs)
 
 
-class AddressList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class AddressList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                  generics.GenericAPIView):
     queryset = models.Address.objects.all()
     serializer_class = serializers.AddressSerializer
 
@@ -116,7 +127,8 @@ class AddressList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
         return self.create(request, *args, **kwargs)
 
 
-class AddressDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+class AddressDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                    mixins.DestroyModelMixin,
                     generics.GenericAPIView):
     queryset = models.Address.objects.all()
     serializer_class = serializers.AddressSerializer
@@ -131,7 +143,8 @@ class AddressDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.D
         return self.destroy(request, *args, **kwargs)
 
 
-class SurgeryList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class SurgeryList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                  generics.GenericAPIView):
     queryset = models.Surgery.objects.all()
     serializer_class = serializers.SurgerySerializer
 
@@ -142,7 +155,8 @@ class SurgeryList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
         return self.create(request, *args, **kwargs)
 
 
-class SurgeryDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+class SurgeryDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                    mixins.DestroyModelMixin,
                     generics.GenericAPIView):
     queryset = models.Surgery.objects.all()
     serializer_class = serializers.SurgerySerializer
