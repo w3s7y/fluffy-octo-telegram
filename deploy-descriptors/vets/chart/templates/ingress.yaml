@@ -33,6 +33,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-database
+            name: vets-database
             port:
               number: 8080

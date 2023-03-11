@@ -5,4 +5,3 @@ vets:
   image:
     name: theshipyard/vets-app
     version: 0.0.3
-database:
