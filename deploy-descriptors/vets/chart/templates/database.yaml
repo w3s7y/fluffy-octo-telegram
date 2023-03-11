@@ -40,7 +40,6 @@ spec:
         envFrom:
           - configMapRef:
               name: "{{ .Release.Name }}-database"
-              optional: false
   volumeClaimTemplates:
   - metadata:
       name: data
