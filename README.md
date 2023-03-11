@@ -18,34 +18,22 @@ here.
 I have mapped them out as [user stories](https://github.com/w3s7y/fluffy-octo-telegram/issues?q=label%3Astory)
 
 ## Testing out / running the project
-Ensure you have all the project dependencies installed in your python 
-virtualenv by running `pip install -r application/requirements.txt` from the root
-of the project.
-
-Make and apply the initial migration to the database:
+Grab the deps, make the migrations and go go go....
 ```shell
+pip install -r application/requirements.txt
 python application/manage.py makemigrations
 python application/manage.py migrate
-```
-
-Then you can run the development server using the command 
-```shell
 python application/manage.py runserver
 ```
 this will start the [local server](http://localhost:8000/vets/vets/) for you to use.  and you can visit the
 [admin page](http://localhost:8000/api-auth/login?next=/admin)
-
-## Running the projects unit tests (all tests in all apps)
-```shell
-python application/manage.py test
-```
 
 ## Django apps
 The following is a list and quick description of the django applications in this project. 
 
 | Name          | Description                                                                                                                                        | 
 |---------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| djangorestapi | The django project itself, has the project-wide `urls.py` and the projects `settings.py`                                                           |
+| djangorestapi | The django admin project.  Has the project-wide `urls.py` and the projects `settings.py`                                                           |
 | api           | [Rest Framework Quickstart](https://www.django-rest-framework.org/tutorial/quickstart/) just for reference                                         |
 | vets          | The "main" application.  A pretend backend API for a vets surgery (including checking in and out clients pets, surgery times, vet timetables etc.) |
 | vets-ui       | Currently not there (future playing around) will be the UI for the frontend in some language or other if I ever get there                          | 
@@ -69,7 +57,6 @@ kubectl create ns argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 Full docs can be found [here](https://argo-cd.readthedocs.io/en/stable/).
-
 
 ### Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
 First up are a few config objects and secrets which will be used by upcoming deployments:
@@ -122,7 +109,7 @@ helm install cluster-services deploy-descriptors/cluster/chart --namespace argoc
 ```
 This deploys a lot to the cluster!  have at least 10gb of memory free!
 
-### Deploying CD pipelines for vets-app
+## Deploying CD pipelines for vets-app
 ```shell
 kubectl apply -n argocd -f deploy-descriptors/vets/argocd.yaml
 ```
