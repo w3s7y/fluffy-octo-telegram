@@ -38,9 +38,9 @@ spec:
         - name: data
           mountPath: /var/lib/postgresql/data
         envFrom:
-          configMapRef:
-            name: "{{ .Release.Name }}-database"
-            optional: false
+          - configMapRef:
+              name: "{{ .Release.Name }}-database"
+              optional: false
   volumeClaimTemplates:
   - metadata:
       name: data
