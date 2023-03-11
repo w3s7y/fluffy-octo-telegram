@@ -21,13 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-k06fwahgah)l)l@#n)$sc+!i4q5o(nl&%pr*6at#xopb-%%-mo")
+SECRET_KEY = \
+    os.environ.get("DJANGO_SECRET_KEY",
+                   "django-insecure-k06fwahgah"
+                   ")l)l@#n)$sc+!i4q5o(nl&%pr*6at#xopb-%%-mo")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    ".vets.internal"
+]
 
 # Application definition
 
@@ -40,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'snippets',
     'vets',
 ]
 
@@ -84,7 +87,8 @@ DATABASES = {
         'NAME': os.environ.get("POSTGRES_NAME", "vets-app"),
         'USER': os.environ.get("POSTGRES_USER", "vets-app"),
         'PASSWORD': os.environ.get("POSTGRES_PASS", "vets-pass"),
-        'HOST': os.environ.get("POSTGRES_HOST", f"{os.environ.get('ENVIRONMENT')}-vets-db"),
+        'HOST': os.environ.get("POSTGRES_HOST",
+                               f"vets-database"),
         'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }
@@ -95,16 +99,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'NumericPasswordValidator',
     },
 ]
 
@@ -132,7 +140,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.'
+                                'PageNumberPagination',
     'PAGE_SIZE': 50
 }
-

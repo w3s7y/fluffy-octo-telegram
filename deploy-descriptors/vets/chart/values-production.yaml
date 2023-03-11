@@ -1,8 +1,7 @@
 ---
-environment: dev
+environment: production
 vets:
-  replicas: 1
+  replicas: 3
   image:
     name: theshipyard/vets-app
     version: 0.0.3
-database:

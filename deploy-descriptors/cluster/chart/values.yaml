@@ -1,20 +1,153 @@
 ---
 internal_domain_name: vets.internal
-source_repos:
-- 'git@github.com:w3s7y/fluffy-octo-telegram.git'
-- 'https://prometheus-community.github.io/helm-charts'
-- 'https://artifacthub.github.io/helm-charts'
-- 'https://argoproj.github.io/argo-helm'
-- 'https://charts.bitnami.com/bitnami'
-- 'https://helm.elastic.co'
-- 'https://helm.releases.hashicorp.com'
-- 'https://jp-gouin.github.io/helm-openldap'
-
-prometheus_stack:
+project_description: 'Top level argocd project to contain all the tooling deployed to the cluster.'
+argo_apps:
+- prometheus_stack:
+  name: prometheus-stack
   version: 45.1.0
   chart: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
+  namespace: monitoring
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  - Replace=false
+  - ServerSideApply=true
+  helm_values:
+    alertmanager:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+        - alertmanager.vets.internal
+        paths:
+        - '/'
+    grafana:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+        - grafana.vets.internal
+        paths:
+        - '/'
+    prometheus:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+        - prometheus.vets.internal
+        paths:
+        - '/'
+- argo_workflows:
+  name: argo-workflows
+  version: 0.22.11
+  chart: argo-workflows
+  repo: https://argoproj.github.io/argo-helm
+  namespace: argo-workflows
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  helm_values:
+    singleNamespace: true
+    workflow:
+      rbac:
+        create: true
+      serviceAccount:
+        create: true
+    server:
+      ingress:
+        enabled: true
+        hosts:
+        - 'workflows.vets.internal'
+- argo_events:
+  name: argo-events
+  version: 2.1.2
+  chart: argo-events
+  repo: https://argoproj.github.io/argo-helm
+  namespace: argo-events
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+- vault:
+  name: vault
+  version: 0.23.0
+  chart: vault
+  repo: https://helm.releases.hashicorp.com
+  namespace: vault
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  helm_values:
+    server:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+        - host: vault.vets.internal
+          paths: []
+    injector:
+      enabled: true
+- elastic_operator:
+  name: elastic-operator
+  version: 2.6.1
+  chart: eck-operator
+  repo: https://helm.elastic.co
+  namespace: logging
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  helm_values:
+    webhook:
+      enabled: false
+- elastic_stack:
+  name: elastic-stack
+  version: 0.3.0
+  chart: eck-stack
+  repo: https://helm.elastic.co
+  namespace: logging
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  helm_values:
+    webhook:
+      enabled: true
+- kafka:
+  name: kafka
+  version: 20.0.6
+  chart: kafka
+  repo: https://charts.bitnami.com/bitnami
+  namespace: kafka
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+- openldap:
+  name: openldap
+  version: 4.1.0
+  chart: openldap-stack-ha
+  repo: https://jp-gouin.github.io/helm-openldap
+  namespace: openldap
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  helm_values:
+    phpldapadmin:
+      env: {}
+      ingress:
+        enabled: "true"
+        path: /
+        hosts:
+        - admin.vets.internal
+    ltb-passwd:
+      ingress:
+        enabled: "true"
+        path: /
+        hosts:
+        - reset.vets.internal
 
+# Some custom hand-rolled ingress objects
+# These should really be deployed as part of the Application that deploys the services
+# that way the ingress objects are visible in the argocd UI as part of the application they relate to.
+# Rather than here outside of argocd.
 ingress:
 - argocd:
   name: argocd
@@ -23,27 +156,3 @@ ingress:
   backend:
     name: argocd-server
     port: 80
-- argo_workflows:
-  name: workflows
-  namespace: argo-workflows
-  backend:
-    name: "argo-workflows-server"
-    port: 2746
-- grafana:
-  name: grafana
-  namespace: monitoring
-  backend:
-    name: prometheus-stack-grafana
-    port: 80
-- kibana:
-  name: kibana
-  namespace: logging
-  backend:
-    name: elastic-stack-eck-kibana-kb-http
-    port: 5601
-- vault:
-  name: vault
-  namespace: vault
-  backend:
-    name: hashicorp-vault
-    port: 8200
