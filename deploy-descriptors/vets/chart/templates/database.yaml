@@ -1,14 +1,4 @@
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-database
-data:
-  POSTGRES_USER: "vets-app"
-  POSTGRES_PASSWORD: "vets-pass"
-  POSTGRES_DB: "vets"
-  PGDATA: "/var/lib/postgresql/data/vets-data"
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -53,15 +43,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-database
+  name: vets-database
   labels:
-    app: {{ .Release.Name }}-database
+    app: vets-database
 spec:
   ports:
   - port: 5432
     name: db
   - port: 8080
     name: adminer
-  clusterIP: None
   selector:
     app: {{ .Release.Name }}-database
