@@ -3,6 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: vets
+  namespace: argocd
   # Finalizer that ensures that project is not deleted until it is not referenced by any application
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -34,6 +35,12 @@ spec:
     kind: Service
   - group: '*'
     kind: Secret
+  - group: '*'
+    kind: ConfigMap
+  - group: '*'
+    kind: StatefulSet
+  - group: '*'
+    kind: Ingress
   roles:
   # A role which provides read-only access to all applications in the project
   - name: read-only
@@ -57,6 +64,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: dev-vets
+  namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
@@ -81,6 +89,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: production-vets
+  namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
