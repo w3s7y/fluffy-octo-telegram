@@ -3,5 +3,5 @@ apiVersion: v2
 name: cluster-services
 description: Chart to deploy the ancillary services to the cluster
 type: application
-version: 0.0.1
-icon: "https://production.vets/favicon.ico"
+version: 0.0.2
+icon: "https://production.vets.internal/favicon.ico"
