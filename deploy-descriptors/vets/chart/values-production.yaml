@@ -4,4 +4,4 @@ vets:
   replicas: 3
   image:
     name: theshipyard/vets-app
-    version: 0.0.2
+    version: 0.0.3
