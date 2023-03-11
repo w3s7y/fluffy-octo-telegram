@@ -104,7 +104,7 @@ spec:
     helm:
       releaseName: production-vets
       valueFiles:
-        - values-prod.yaml
+        - values-production.yaml
   destination:
     server: "https://kubernetes.default.svc"
     namespace: production-vets
