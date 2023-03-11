@@ -20,5 +20,5 @@ spec:
         ports:
         - containerPort: 8000
         envFrom:
-        - configMapRef:
-          name: {{ .Release.Name }}
+          configMapRef:
+            name: {{ .Release.Name }}
