@@ -87,7 +87,7 @@ DATABASES = {
         'USER': os.environ.get("POSTGRES_USER", "vets-app"),
         'PASSWORD': os.environ.get("POSTGRES_PASS", "vets-pass"),
         'HOST': os.environ.get("POSTGRES_HOST",
-                               f"{os.environ.get('ENVIRONMENT')}-vets-db"),
+                               f"vets-database"),
         'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }

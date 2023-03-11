@@ -22,8 +22,9 @@ Ensure you have all the project dependencies installed in your python
 virtualenv by running `pip install -r application/requirements.txt` from the root
 of the project.
 
-Apply the migrations to the database:
+Make and apply the initial migration to the database:
 ```shell
+python application/manage.py makemigrations
 python application/manage.py migrate
 ```
 
@@ -35,16 +36,9 @@ this will start the [local server](http://localhost:8000/vets/vets/) for you to 
 [admin page](http://localhost:8000/api-auth/login?next=/admin)
 
 ## Running the projects unit tests (all tests in all apps)
-`python application/manage.py test`
-
-## Building the project locally
-You _should_ never really need to do this as the image is built and deployed to dockerhub 
-as part of the build pipeline, but it is here for completeness. 
 ```shell
-docker build -t vets-app:<some tag> .
+python application/manage.py test
 ```
-Where `some tag` is just the image tag, if you are testing something _really_ out there please avoid the semver tags and 
-use something personal like `bw-my-super-janky-build` and delete the tag from the hub when you are finished. 
 
 ## Django apps
 The following is a list and quick description of the django applications in this project. 
@@ -53,17 +47,18 @@ The following is a list and quick description of the django applications in this
 |---------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | djangorestapi | The django project itself, has the project-wide `urls.py` and the projects `settings.py`                                                           |
 | api           | [Rest Framework Quickstart](https://www.django-rest-framework.org/tutorial/quickstart/) just for reference                                         |
-| snippets      | [Rest Framework Longer tutorial](https://www.django-rest-framework.org/tutorial/1-serialization/) - A pastebin API clone                           |
 | vets          | The "main" application.  A pretend backend API for a vets surgery (including checking in and out clients pets, surgery times, vet timetables etc.) |
 | vets-ui       | Currently not there (future playing around) will be the UI for the frontend in some language or other if I ever get there                          | 
 
-## Deploying the cluster
+## Deploying a k8s cluster
 I will skip over the installation of minikube or whatever other kubernetes offering you are using. It is assumed 
 your cluster is already up, has `ingress-nginx` installed, and you can `kubectl` it. 
 
-I use `minikube` to start a 3 node cluster locally and tunnel ingress rules to localhost then you can hit the cluster:
+I use `minikube` to start a cluster locally and tunnel ingress rules to localhost then you can hit the cluster:
 ```shell
-minikube start --nodes 3 --addons ingress metrics-server -p vets
+minikube start --nodes 1 --addons ingress \
+  --cpu max --memory 12192 --addons metrics-server \
+  --extra-config=kubelet.max-pods=1000 -p vets
 minikube tunnel -p vets &
 ```
 
@@ -72,14 +67,14 @@ As argoCD is the main driver for deploying, just run the following to deploy the
 ```shell
 kubectl create ns argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl wait --for=condition=Available=true deployment/argocd-server -n argocd
 ```
 Full docs can be found [here](https://argo-cd.readthedocs.io/en/stable/).
+
 
 ### Deploying the rest of the stack (logging, monitoring, argo workflows etc.)
 First up are a few config objects and secrets which will be used by upcoming deployments:
 
-### Elasticsearch trial enterprise license
+#### Elasticsearch trial enterprise license
 ```shell
 kubectl create ns logging
 cat <<EOF | kubectl apply -f -
@@ -92,6 +87,31 @@ metadata:
     license.k8s.elastic.co/type: enterprise_trial
   annotations:
     elastic.co/eula: accepted
+EOF
+```
+
+#### Argocd github secret
+As part of it's job, argocd needs to get to github so it can pull the projects helm charts so for now I am just
+injecting the secret manually, should integrate vault here (future job).
+```shell
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    managed-by: argocd.argoproj.io
+  labels:
+    argocd.argoproj.io/secret-type: repository
+  name: fluffy-octo-telegram
+  namespace: argocd
+stringData:
+  insecureIgnoreHostKey: "true"
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+       
+    -----END OPENSSH PRIVATE KEY-----
+  type: git
+  url: git@github.com:w3s7y/fluffy-octo-telegram
 EOF
 ```
 
@@ -118,7 +138,7 @@ so just some local host file hacks are the simplest way for quick and dirty test
 
 ```shell
 # Hosts for fluffy-octo
-127.0.0.1	dev.vets production.vets
+127.0.0.1	dev.vets.internal production.vets.internal
 # ci/cd entries
 127.0.0.1	argocd.vets.internal workflows.vets.internal 
 # Logging
@@ -127,8 +147,11 @@ so just some local host file hacks are the simplest way for quick and dirty test
 127.0.0.1 	grafana.vets.internal alertmanager.vets.internal prometheus.vets.internal 
 # user admin / secrets
 127.0.0.1	reset.vets.internal admin.vets.internal vault.vets.internal
+# pgadminer
+127.0.0.1   pgadminer.dev.vets.internal pgadminer.production.vets.internal
 ```
-Then you can use `https://` for all the endpoints as the ingress controller deploys its own self-signed cert. 
 
 ## Troubleshooting
-
+| Issue                     | Possibe solutions | Related Github Issues |
+|---------------------------|-------------------|-----------------------|
+| Multi-node vols dont work | Don't use them!   | #31                   |

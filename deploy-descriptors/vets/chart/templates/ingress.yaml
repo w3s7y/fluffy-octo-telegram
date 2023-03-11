@@ -4,10 +4,10 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /vets
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: {{ .Values.environment }}.vets
+  - host: {{ .Values.environment }}.vets.internal
     http:
       paths:
       - path: /
@@ -17,3 +17,22 @@ spec:
             name: {{ .Release.Name }}
             port:
               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-pgadminer-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: pgadminer.{{ .Values.environment }}.vets.internal
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}-database
+            port:
+              number: 8080
