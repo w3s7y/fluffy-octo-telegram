@@ -9,3 +9,18 @@ spec:
     targetPort: 8000
   selector:
     app: {{ .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vets-database
+  labels:
+    app: vets-database
+spec:
+  ports:
+  - port: 5432
+    name: db
+  - port: 8080
+    name: adminer
+  selector:
+    app: {{ .Release.Name }}-database
