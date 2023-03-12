@@ -22,7 +22,7 @@ class Address(models.Model):
 
 
 class Surgery(Address):
-    name = models.CharField(max_length=200, blank=False, null=True)
+    name = models.CharField(max_length=200, blank=False, null=True, unique=True)
     opening_time = models.TimeField(blank=False)
     closing_time = models.TimeField(blank=False)
 
@@ -56,11 +56,11 @@ class Pet(models.Model):
 
     name = models.CharField(max_length=100, blank=False)
     species = models.CharField(max_length=200, blank=False,
-                               choices=SPECIES_CHOICES, null=True)
+                               choices=SPECIES_CHOICES, null=False)
     dob = models.DateTimeField()
     dod = models.DateTimeField(null=True)
     chip_id = models.BigIntegerField(null=True)
-    owner = models.ForeignKey('Client', on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey('Client', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return f"{self.name}"
@@ -70,7 +70,7 @@ class Vet(Human):
     salary = models.IntegerField(blank=False)
     notifications_enabled = models.BooleanField(default=True)
     base_surgery = models.ForeignKey('Surgery', on_delete=models.RESTRICT,
-                                     null=True)
+                                     null=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
