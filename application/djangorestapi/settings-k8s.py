@@ -144,3 +144,5 @@ REST_FRAMEWORK = {
                                 'PageNumberPagination',
     'PAGE_SIZE': 50
 }
+
+TEST_RUNNER = "vets.testing.test_runner.VetsTestRunner"
