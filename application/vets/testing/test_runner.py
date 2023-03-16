@@ -1,6 +1,7 @@
 from django.test.runner import DiscoverRunner
 from vets.models import *
 import vets.testing.test_data as td
+from django.contrib.auth.models import Group
 
 
 class VetsTestRunner(DiscoverRunner):
@@ -14,7 +15,9 @@ class VetsTestRunner(DiscoverRunner):
         :return:
         """
         super_init = super(VetsTestRunner, self).setup_databases(**kwargs)
-        User.objects.create_superuser(username='admin', password='admin')
+
+        for group in td.VetsTestData.AUTH_GROUPS:
+            Group.objects.create(name=group)
 
         for surgery in td.VetsTestData.SURGERIES:
             surg_to_make = {

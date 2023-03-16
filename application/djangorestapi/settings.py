@@ -19,14 +19,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "thisisforlocaltesting123456789")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.environ.get("DJANGO_DEBUG") == "True":
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    ".vets.internal",
+    "localhost",
+]
 
-# Application definition
+ROOT_URLCONF = 'djangorestapi.urls'
+TEST_RUNNER = 'vets.testing.test_runner.VetsTestRunner'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,8 +56,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-ROOT_URLCONF = 'djangorestapi.urls'
 
 TEMPLATES = [
     {
@@ -77,6 +82,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'postgres': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("POSTGRES_NAME", "vets-app"),
+        'USER': os.environ.get("POSTGRES_USER", "vets-app"),
+        'PASSWORD': os.environ.get("POSTGRES_PASS", ""),
+        'HOST': os.environ.get("POSTGRES_HOST",
+                               f"vets-database"),
+        'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }
 
@@ -131,4 +145,3 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-TEST_RUNNER = "vets.testing.test_runner.VetsTestRunner"

@@ -3,6 +3,14 @@ from vets.models import Address, Pet
 
 class VetsTestData(object):
 
+    AUTH_GROUPS = [
+        'vets',
+        'clients',
+        'receptionists',
+        'vets-admin',
+        'area-manager'
+    ]
+
     SURGERIES = [
         {
             "surgery_name": "Oak",
