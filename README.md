@@ -28,6 +28,14 @@ python application/manage.py runserver
 this will start the [local server](http://localhost:8000/vets/vets/) for you to use.  and you can visit the
 [admin page](http://localhost:8000/api-auth/login?next=/admin)
 
+At this point in time it is an empty database which isn't very useful if you just want to have a play with some 
+data in there just run the tests with `--keepdb` and you can have a look at that.
+```shell
+python application/manage.py test --keepdb
+# And if you have sqlite3 installed and on your $PATH / want a dabble in the DB
+python application/manage.py dbshell
+```
+
 ## Django apps
 The following is a list and quick description of the django applications in this project. 
 

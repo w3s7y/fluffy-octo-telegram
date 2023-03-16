@@ -16,7 +16,7 @@ spec:
           service:
             name: {{ .Release.Name }}
             port:
-              number: 80
+              number: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
