@@ -27,6 +27,12 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: vets-app
+              key: POSTGRES_PASSWORD
         envFrom:
           - configMapRef:
               name: "{{ .Release.Name }}-database"
