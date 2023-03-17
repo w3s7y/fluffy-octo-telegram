@@ -15,10 +15,21 @@ spec:
         app: {{ .Release.Name }}
     spec:
       containers:
-      - image: {{ .Values.vets.image.name }}:{{ .Values.vets.image.version }}
-        name: {{ .Release.Name }}
+      - name: "{{ .Release.Name }}"
+        image: "{{ .Values.vets.image.name }}:{{ .Values.vets.image.version }}"
         ports:
-        - containerPort: 8000
+        - containerPort: {{ .Values.vets.port }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: vets-app
+                key: POSTGRES_PASSWORD
+        - name: DJANGO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: vets-app
+              key: DJANGO_SECRET_KEY

@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+import psycopg2.extensions
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,15 +20,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k06fwahgah' \
-             ')l)l@#n)$sc+!i4q5o(nl&%pr*6at#xopb-%%-mo'
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.environ.get("DJANGO_DEBUG") == "True":
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    ".vets.internal",
+    "localhost",
+]
 
-# Application definition
+ROOT_URLCONF = 'djangorestapi.urls'
+TEST_RUNNER = 'vets.testing.test_runner.VetsTestRunner'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vets.internal",
+    "http://localhost"
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -51,8 +63,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'djangorestapi.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -75,11 +85,23 @@ WSGI_APPLICATION = 'djangorestapi.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'local': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'main': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("POSTGRES_NAME", "vets"),
+        'USER': os.environ.get("POSTGRES_USER", "vets-app"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("POSTGRES_HOST",
+                               "vets-database"),
+        'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }
+
+# Allow us to flip the db config via env var
+DATABASES['default'] = DATABASES[os.environ['DJANGO_DATABASE']]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -129,7 +151,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.'
                                 'PageNumberPagination',
-    'PAGE_SIZE': 10
-}
+    'PAGE_SIZE': 10,
 
-TEST_RUNNER = "vets.testing.test_runner.VetsTestRunner"
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/day',
+        'user': '1000000/day'
+    }
+}

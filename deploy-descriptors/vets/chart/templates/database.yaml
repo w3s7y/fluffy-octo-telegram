@@ -17,16 +17,22 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-      - name: postgres
-        image: postgres:15.2
+      - name: "postgres"
+        image: "{{ .Values.database.image.name }}:{{ .Values.database.image.version }}"
         ports:
-        - containerPort: 5432
+        - containerPort: {{ .Values.database.port }}
           name: db
         - containerPort: 8080
           name: adminer
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: vets-app
+              key: POSTGRES_PASSWORD
         envFrom:
           - configMapRef:
               name: "{{ .Release.Name }}-database"
@@ -38,4 +44,4 @@ spec:
       storageClassName: "standard"
       resources:
         requests:
-          storage: 10Gi
+          storage: "{{ .Values.database.claim }}"

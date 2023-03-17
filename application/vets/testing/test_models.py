@@ -11,6 +11,9 @@ class TestAddress(TestCase):
     def test_address_data_loaded_from_runner(self):
         self.assertTrue(Address.objects.filter())
 
+    def test_good_count_of_addresses(self):
+        self.assertEqual(len(Address.objects.filter()), 11)
+
 
 class TestSurgery(TestCase):
     def test_surgery_data_loaded_from_runner(self):
