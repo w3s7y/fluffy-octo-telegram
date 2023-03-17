@@ -18,7 +18,6 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-database
 data:
-  POSTGRES_USER: "vets-app"
-  POSTGRES_DB: "vets"
-  # POSTGRES_HOST_AUTH_METHOD: "host"
+  POSTGRES_USER: "{{ .Values.database.user }}"
+  POSTGRES_DB: "{{ .Values.database.name }}"
   PGDATA: "/var/lib/postgresql/data/vets-data"

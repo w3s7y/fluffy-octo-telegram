@@ -8,6 +8,7 @@ vets:
   port: 8000
   debug: false
 database:
+  claim: "5Gi"
   image:
     name: postgres
     version: 15.2

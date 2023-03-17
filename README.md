@@ -127,6 +127,14 @@ same directory to deploy.
 In the current configuration, the `dev` environment uses the `develop` branch and the `production` environment uses
 `master` branch as its source for deployment charts.
 
+## Creating an admin user
+Using dev environment as an example
+```shell
+kubectl exec -it \
+  $(kubectl get pods -n dev-vets | grep -v "NAME" | grep -v database | awk '{print $1}')\
+   -n dev-vets -- python3 manage.py createsuperuser
+```
+
 ## Accessing the cluster http services (minikube)
 To do this I use `minikube tunnel` which exposes the clusters ingress objects over localhost 
 so just some local host file hacks are the simplest way for quick and dirty testing on a local `minikube` cluster. 
