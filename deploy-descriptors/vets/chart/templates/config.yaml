@@ -4,7 +4,9 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}
 data:
-  DJANGO_SETTINGS_MODULE: "djangorestapi.settings-k8s"
+  DJANGO_SETTINGS_MODULE: "djangorestapi.settings"
+  DJANGO_DATABASE: "main"
+  DJANGO_DEBUG: "False"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -12,6 +14,5 @@ metadata:
   name: {{ .Release.Name }}-database
 data:
   POSTGRES_USER: "vets-app"
-  POSTGRES_PASSWORD: "vets-pass"
   POSTGRES_DB: "vets"
   PGDATA: "/var/lib/postgresql/data/vets-data"

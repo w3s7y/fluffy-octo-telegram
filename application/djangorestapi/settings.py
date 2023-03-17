@@ -79,20 +79,23 @@ WSGI_APPLICATION = 'djangorestapi.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'local': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'postgres': {
+    'main': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_NAME", "vets-app"),
+        'NAME': os.environ.get("POSTGRES_NAME", "vets"),
         'USER': os.environ.get("POSTGRES_USER", "vets-app"),
-        'PASSWORD': os.environ.get("POSTGRES_PASS", ""),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", ""),
         'HOST': os.environ.get("POSTGRES_HOST",
-                               f"vets-database"),
+                               "vets-database"),
         'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }
+
+# Allow us to flip the db config via env var
+DATABASES['default'] = DATABASES[os.environ.get('DJANGO_DATABASE', 'main')]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -142,6 +145,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.'
                                 'PageNumberPagination',
-    'PAGE_SIZE': 10
-}
+    'PAGE_SIZE': 10,
 
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/day',
+        'user': '1000000/day'
+    }
+}

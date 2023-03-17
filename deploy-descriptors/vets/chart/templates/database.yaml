@@ -18,9 +18,9 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: postgres
-        image: postgres:15.2
+        image: "{{ .Values.database.image.name }}:{{ .Values.database.image.version }}"
         ports:
-        - containerPort: 5432
+        - containerPort: {{ .Values.database.port }}
           name: db
         - containerPort: 8080
           name: adminer

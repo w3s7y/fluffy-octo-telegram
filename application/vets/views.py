@@ -6,6 +6,7 @@ from vets import serializers
 class ClientList(mixins.ListModelMixin,
                  mixins.CreateModelMixin,
                  generics.GenericAPIView):
+
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -21,6 +22,7 @@ class ClientDetail(mixins.UpdateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.DestroyModelMixin,
                    generics.GenericAPIView):
+
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -37,6 +39,7 @@ class ClientDetail(mixins.UpdateModelMixin,
 
 class VetList(mixins.ListModelMixin, mixins.CreateModelMixin,
               generics.GenericAPIView):
+
     queryset = models.Vet.objects.all()
     serializer_class = serializers.VetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -66,6 +69,7 @@ class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
 
 class PetList(mixins.ListModelMixin, mixins.CreateModelMixin,
               generics.GenericAPIView):
+
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -79,6 +83,7 @@ class PetList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
 class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                 mixins.DestroyModelMixin, generics.GenericAPIView):
+
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
     permission_classes = [permissions.IsAuthenticated]
