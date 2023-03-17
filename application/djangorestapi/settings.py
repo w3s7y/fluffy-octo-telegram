@@ -91,15 +91,12 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
         'HOST': os.environ.get("POSTGRES_HOST",
                                "vets-database"),
-        'PORT': os.environ.get("POSTGRES_PORT", "5432"),
-        'OPTIONS': {
-            'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT
-        }
+        'PORT': os.environ.get("POSTGRES_PORT", "5432")
     }
 }
 
 # Allow us to flip the db config via env var
-DATABASES['default'] = DATABASES[os.environ.get('DJANGO_DATABASE', 'main')]
+DATABASES['default'] = DATABASES[os.environ['DJANGO_DATABASE']]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

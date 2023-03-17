@@ -6,11 +6,12 @@ vets:
     name: theshipyard/vets-app
     version: 0.0.7
   port: 8000
+  debug: false
 database:
   image:
     name: postgres
     version: 15.2
   host: vets-database
   port: 5432
-  name: vets
+  name: production-vets
   user: vets-app

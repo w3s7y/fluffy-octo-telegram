@@ -4,13 +4,14 @@ vets:
   replicas: 1
   image:
     name: theshipyard/vets-app
-    version: 0.0.7
+    version: 0.0.8
   port: 8000
+  debug: True
 database:
   image:
     name: postgres
     version: 15.2
   host: vets-database
   port: 5432
-  name: vets
+  name: dev-vets
   user: vets-app
