@@ -17,7 +17,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-      - name: postgres
+      - name: "postgres"
         image: "{{ .Values.database.image.name }}:{{ .Values.database.image.version }}"
         ports:
         - containerPort: {{ .Values.database.port }}
@@ -34,4 +34,14 @@ spec:
               name: vets-app
               key: POSTGRES_PASSWORD
         envFrom:
-          - conf
+          - configMapRef:
+              name: "{{ .Release.Name }}-database"
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 10Gi
