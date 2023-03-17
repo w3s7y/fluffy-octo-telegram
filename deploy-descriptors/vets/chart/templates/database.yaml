@@ -34,14 +34,4 @@ spec:
               name: vets-app
               key: POSTGRES_PASSWORD
         envFrom:
-          - configMapRef:
-              name: "{{ .Release.Name }}-database"
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "standard"
-      resources:
-        requests:
-          storage: 10Gi
+          - conf

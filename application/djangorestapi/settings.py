@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+import psycopg2.extensions
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -87,10 +88,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get("POSTGRES_NAME", "vets"),
         'USER': os.environ.get("POSTGRES_USER", "vets-app"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", ""),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
         'HOST': os.environ.get("POSTGRES_HOST",
                                "vets-database"),
-        'PORT': os.environ.get("POSTGRES_PORT", "5432")
+        'PORT': os.environ.get("POSTGRES_PORT", "5432"),
+        'OPTIONS': {
+            'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT
+        }
     }
 }
 

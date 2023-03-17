@@ -7,6 +7,9 @@ data:
   DJANGO_SETTINGS_MODULE: "djangorestapi.settings"
   DJANGO_DATABASE: "main"
   DJANGO_DEBUG: "False"
+  POSTGRES_USER: ""
+  POSTGRES_NAME: ""
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -15,4 +18,5 @@ metadata:
 data:
   POSTGRES_USER: "vets-app"
   POSTGRES_DB: "vets"
+  POSTGRES_HOST_AUTH_METHOD: "host"
   PGDATA: "/var/lib/postgresql/data/vets-data"

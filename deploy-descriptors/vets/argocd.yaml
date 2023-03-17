@@ -80,6 +80,7 @@ spec:
     helm:
       releaseName: dev-vets
       valueFiles:
+        - values-default.yaml
         - values-dev.yaml
   destination:
     server: "https://kubernetes.default.svc"
@@ -104,6 +105,7 @@ spec:
     helm:
       releaseName: production-vets
       valueFiles:
+        - values-default.yaml
         - values-production.yaml
   destination:
     server: "https://kubernetes.default.svc"
