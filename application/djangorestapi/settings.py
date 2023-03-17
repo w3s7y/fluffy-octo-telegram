@@ -37,7 +37,8 @@ ROOT_URLCONF = 'djangorestapi.urls'
 TEST_RUNNER = 'vets.testing.test_runner.VetsTestRunner'
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.vets.internal",
+    "https://dev.vets.internal",
+    "https://production.vets.internal",
     "http://localhost"
 ]
 
