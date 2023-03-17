@@ -4,7 +4,7 @@ vets:
   replicas: 1
   image:
     name: theshipyard/vets-app
-    version: 0.0.6
+    version: 0.0.7
   port: 8000
 database:
   image:

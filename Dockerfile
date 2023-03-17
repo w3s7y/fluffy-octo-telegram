@@ -11,4 +11,4 @@ COPY ./application .
 
 USER nobody
 EXPOSE 8000
-CMD ["vets_bootstrap.sh", "0.0.0.0:8000"]
+CMD ["./vets_bootstrap.sh", "0.0.0.0:8000"]
