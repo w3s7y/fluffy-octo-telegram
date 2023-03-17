@@ -36,6 +36,11 @@ ALLOWED_HOSTS = [
 ROOT_URLCONF = 'djangorestapi.urls'
 TEST_RUNNER = 'vets.testing.test_runner.VetsTestRunner'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vets.internal",
+    "http://localhost"
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
