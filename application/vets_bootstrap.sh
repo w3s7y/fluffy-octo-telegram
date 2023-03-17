@@ -1,5 +1,5 @@
 #!/usr/bin/env ash
-set -x
+
 python3 manage.py migrate --check --no-input
 if [[ $? != 0 ]]
 then
