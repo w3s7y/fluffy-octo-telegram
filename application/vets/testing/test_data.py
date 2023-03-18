@@ -2,6 +2,9 @@ from vets.models import Address, Pet
 
 
 class VetsTestData(object):
+    """
+    Just the area for the static data which are used in tests.
+    """
 
     AUTH_GROUPS = [
         'vets',
