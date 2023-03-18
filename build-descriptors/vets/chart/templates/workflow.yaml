@@ -17,11 +17,11 @@ spec:
   # The entrypoint template
   - name: vets-ci-workflow
     steps:
-    - - name: "Clone the repo"
+    - - name: Clone
         template: git-clone
-    - - name: "Create python virtualenv"
+    - - name: Create-venv
         template: create-venv
-    - - name: "Linting and Tests"
+    - - name: Tests
         template: lint-and-test-steps
 
   # DAG Templates to parallel up tests
