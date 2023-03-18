@@ -48,13 +48,16 @@ argo_apps:
   - CreateNamespace=true
   - Prune=true
   helm_values:
-    singleNamespace: true
+    singleNamespace: false
     workflow:
       rbac:
         create: true
       serviceAccount:
         create: true
     server:
+      extraArgs:
+      - '--access-control-allow-origin=workflows.vets.internal'
+      - '--auth-mode=server'
       ingress:
         enabled: true
         hosts:
