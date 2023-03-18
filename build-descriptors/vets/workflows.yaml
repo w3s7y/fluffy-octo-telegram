@@ -21,12 +21,10 @@ spec:
     steps:
     - - name: Clone
         template: git-clone
-    - - name: Create-venv
-        template: create-venv
         arguments:
           parameters:
-            - name: python-image
-              value: "python:3.9-alpine3.17"
+            - name: git-ref
+              value: "master"
     - - name: Tests
         template: lint-and-test-steps
         arguments:
@@ -36,21 +34,29 @@ spec:
     - - name: Build
         template: docker-build
 
-  # DAG to parallel up tests
+  # DAG to parallel up test steps
   - name: lint-and-test-steps
     inputs:
       parameters:
         - name: python-image
     dag:
       tasks:
+      - name: create-venv
+        template: create-venv
+        arguments:
+          parameters:
+            - name: python-image
+              value: "python:3.9-alpine3.17"
       - name: pycodestyle
         template: pycodestyle
+        dependencies: [create-venv]
         arguments:
           parameters:
             - name: python-image
               value: "{{inputs.parameters.python-image}}"
       - name: django-tests
         template: djangotests
+        dependencies: [create-venv]
         arguments:
           parameters:
             - name: python-image
@@ -61,16 +67,24 @@ spec:
           parameters:
             - name: python-image
               value: "{{inputs.parameters.python-image}}"
+      - name: terraform-fmt
+        template: terraform
+        arguments:
+          parameters:
+            - name: action
+              value: "fmt"
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
     inputs:
+      parameters:
+        - name: git-ref
       artifacts:
       - name: fluffy-octo-telegram-source
         path: /workdir/src
         git:
           repo: https://github.com/w3s7y/fluffy-octo-telegram.git
-          revision: "develop"
+          revision: "{{inputs.parameters.git-ref}}"
     container:
       image: alpine/git:2.36.3
       command: [sh, -c]
@@ -178,3 +192,18 @@ spec:
               - name: push
                 value: "false"
 
+  - name: terraform
+    inputs:
+      parameters:
+        - name: action
+    container:
+      image: hashicorp/terraform:1.4.2
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+      workingDir: /workdir/src
+      command: [ "sh", "-c"]
+      args:
+      - >
+        echo "{{inputs.parameters.action}}" &&
+        terraform --version
