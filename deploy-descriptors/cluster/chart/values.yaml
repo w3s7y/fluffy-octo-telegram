@@ -87,30 +87,6 @@ argo_apps:
           paths: []
     injector:
       enabled: true
-- elastic_operator:
-  name: elastic-operator
-  version: 2.6.1
-  chart: eck-operator
-  repo: https://helm.elastic.co
-  namespace: logging
-  sync_options:
-  - CreateNamespace=true
-  - Prune=true
-  helm_values:
-    webhook:
-      enabled: false
-- elastic_stack:
-  name: elastic-stack
-  version: 0.3.0
-  chart: eck-stack
-  repo: https://helm.elastic.co
-  namespace: logging
-  sync_options:
-  - CreateNamespace=true
-  - Prune=true
-  helm_values:
-    webhook:
-      enabled: true
 - kafka:
   name: kafka
   version: 20.0.6
