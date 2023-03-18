@@ -79,9 +79,8 @@ spec:
     container:
       image: python:3.9-alpine3.17
       command: [sh, -c]
-      workingDir: /workdir/src/application
-      args:
-        - "pycodestyle ."
+      workingDir: /workdir
+      args: [". ./venv/bin/activate; pip install pycodestyle; pycodestyle src/application"]
       volumeMounts:
       - name: workdir
         mountPath: /workdir
@@ -89,9 +88,16 @@ spec:
   - name: djangotests
     container:
       image: python:3.9-alpine3.17
-      workingDir: /workdir
+      workingDir: /workdir/src/application
       command: [sh, -c]
-      args: [". ./venv/bin/activate; python src/application/manage.py migrate; DJANGO_CACHE=local DJANGO_DATABASE=local DJANGO_DEBUG=True python src/application/manage.py test"]
+      env:
+      - name: "DJANGO_CACHE"
+        value: "local"
+      - name: "DJANGO_DATABASE"
+        value: "local"
+      - name: "DJANGO_DEBUG"
+        value: "True"
+      args: [". ../../venv/bin/activate; python manage.py makemigrations; python manage.py migrate; python manage.py test --timing -v 2"]
       volumeMounts:
       - name: workdir
         mountPath: /workdir
