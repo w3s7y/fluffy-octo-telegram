@@ -4,11 +4,9 @@ vets:
   replicas: 1
   image:
     name: theshipyard/vets-app
-    version: 0.1.1
+    version: 0.1.2
   port: 8000
   debug: True
-  annotations:
-
 database:
   claim: "1Gi"
   image:

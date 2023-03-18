@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api',
     'vets',
 ]
 
@@ -81,6 +80,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'djangorestapi.wsgi.application'
+
+CACHES = {
+    'redis': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': [
+            'redis://redis-master.redis.svc.cluster.local:6379',
+            'redis://redis-replicas.redis.svc.cluster.local:6379'
+        ]
+    },
+    'local': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'vets_cache',
+    }
+}
+
+CACHES['default'] = CACHES[os.environ['DJANGO_CACHE']]
+
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

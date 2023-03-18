@@ -129,6 +129,10 @@ argo_apps:
   - CreateNamespace=true
   - Prune=true
   - Replace=false
+  helm_values:
+    auth:
+      enabled: false
+
 
 # Some custom hand-rolled ingress objects
 # These should really be deployed as part of the Application that deploys the services

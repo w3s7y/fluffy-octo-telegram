@@ -6,7 +6,8 @@ metadata:
 data:
   DJANGO_SETTINGS_MODULE: "djangorestapi.settings"
   DJANGO_DATABASE: "main"
-  DJANGO_DEBUG: "True"
+  DJANGO_CACHE: "redis"
+  DJANGO_DEBUG: "{{ .Values.vets.debug }}"
   POSTGRES_USER: "{{ .Values.database.user }}"
   POSTGRES_HOST: "{{ .Values.database.host }}"
   POSTGRES_NAME: "{{ .Values.database.name }}"
