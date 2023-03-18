@@ -2,7 +2,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: vets-workflow
+  generateName: vets-ci-
+  name: vets-ci
 spec:
   entrypoint: vets-ci-workflow
   volumeClaimTemplates:
@@ -22,19 +23,44 @@ spec:
         template: git-clone
     - - name: Create-venv
         template: create-venv
+        arguments:
+          parameters:
+            - name: python-image
+              value: "python:3.9-alpine3.17"
     - - name: Tests
         template: lint-and-test-steps
+        arguments:
+          parameters:
+            - name: python-image
+              value: "python:3.9-alpine3.17"
     - - name: Build
         template: docker-build
 
   # DAG to parallel up tests
   - name: lint-and-test-steps
+    inputs:
+      parameters:
+        - name: python-image
     dag:
       tasks:
       - name: pycodestyle
         template: pycodestyle
-      - name: djangotests
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
+      - name: django-tests
         template: djangotests
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
+      - name: helm-templates
+        template: helmtemplates
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
@@ -58,8 +84,11 @@ spec:
 
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
+    inputs:
+      parameters:
+        - name: python-image
     container:
-      image: "{{ .Values.vets.python_image }}"
+      image: "{{inputs.parameters.python-image}}"
       command: [sh, -c]
       workingDir: /workdir
       args:
@@ -73,8 +102,11 @@ spec:
         mountPath: /workdir
 
   - name: pycodestyle
+    inputs:
+      parameters:
+        - name: python-image
     container:
-      image: "{{ .Values.vets.python_image }}"
+      image: "{{inputs.parameters.python-image}}"
       command: [sh, -c]
       workingDir: /workdir
       args:
@@ -90,8 +122,11 @@ spec:
         mountPath: /workdir
 
   - name: djangotests
+    inputs:
+      parameters:
+        - name: python-image
     container:
-      image: "{{ .Values.vets.python_image }}"
+      image: "{{inputs.parameters.python-image}}"
       workingDir: /workdir/src/application
       command: [sh, -c]
       env:
@@ -113,32 +148,31 @@ spec:
       - name: workdir
         mountPath: /workdir
 
-  - name: docker-build
+  - name: helmtemplates
     inputs:
       parameters:
-        - name: version
+        - name: python-image
     container:
-      image: moby/buildkit:v0.11.4-rootless
-      workingDir: /workdir/src
-      command:
-        - buildctl-daemonless.sh
+      image: "{{inputs.parameters.python-image}}"
       volumeMounts:
       - name: workdir
         mountPath: /workdir
-      - name: docker-config
-        mountPath: /.docker
-      env:
-        - name: BUILDKITD_FLAGS
-          value: --oci-worker-no-process-sandbox
-        - name: DOCKER_CONFIG
-          value: /.docker
+      workingDir: /workdir/src
+      command: [ "sh", "-c"]
       args:
-        - build
-        - --frontend
-        - dockerfile.v0
-        - --local
-        - context=.
-        - --local
-        - dockerfile=.
-        - --output
-        - type=image,name=theshipyard/vets-app:{{inputs.parameters.version}},push=false
+      - >
+        apk add helm &&
+        export CHARTS=$(find . -name chart -type d) &&
+        for chart in ${CHARTS}; do helm template --debug test ${chart}; done
+
+  - name: docker-build
+    steps:
+      - - name: buildkit-image
+          templateRef:
+            name: buildkit
+            template: build
+          arguments:
+            parameters:
+              - name: image
+                value: theshipyard/vets-app:develop-head
+

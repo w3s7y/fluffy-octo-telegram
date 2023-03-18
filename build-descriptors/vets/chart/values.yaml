@@ -1,3 +1,0 @@
----
-vets:
-  python_image: "python:3.9-alpine3.17"
