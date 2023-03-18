@@ -119,6 +119,16 @@ argo_apps:
         path: /
         hosts:
         - reset.vets.internal
+- redis:
+  name: redis
+  version: 17.8.5
+  chart: redis
+  repo: https://charts.bitnami.com/bitnami
+  namespace: redis
+  sync_options:
+  - CreateNamespace=true
+  - Prune=true
+  - Replace=false
 
 # Some custom hand-rolled ingress objects
 # These should really be deployed as part of the Application that deploys the services
