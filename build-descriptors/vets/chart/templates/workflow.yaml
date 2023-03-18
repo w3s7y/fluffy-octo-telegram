@@ -114,11 +114,31 @@ spec:
         mountPath: /workdir
 
   - name: docker-build
+    inputs:
+      parameters:
+        - name: version
     container:
-      image: docker:23.0.1-dind-rootless
+      image: moby/buildkit:v0.11.4-rootless
       workingDir: /workdir/src
-      command: [sh, -c]
+      command:
+        - buildctl-daemonless.sh
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+      - name: docker-config
+        mountPath: /.docker
+      env:
+        - name: BUILDKITD_FLAGS
+          value: --oci-worker-no-process-sandbox
+        - name: DOCKER_CONFIG
+          value: /.docker
       args:
-      - >
-        docker build -t theshipyard/vets-app:testpipeline . &&
-        docker images | grep theshipyard
+        - build
+        - --frontend
+        - dockerfile.v0
+        - --local
+        - context=.
+        - --local
+        - dockerfile=.
+        - --output
+        - type=image,name=theshipyard/vets-app:{{inputs.parameters.version}},push=false
