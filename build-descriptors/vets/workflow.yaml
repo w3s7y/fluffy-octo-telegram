@@ -5,6 +5,15 @@ metadata:
   name: vets-workflow
 spec:
   entrypoint: vets-ci-workflow
+  volumeClaimTemplates:
+  - metadata:
+      name: workdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
   templates:
   - name: vets-ci-workflow
     steps:
@@ -21,6 +30,12 @@ spec:
     - - name: update-deploy-descriptor-dev
         template: update-dd
 
+  - name: deploy-to-environemt
+    dag:
+      tasks:
+      - name: deploy-to-dev
+
+
   - name: pycodestyle
     container:
       image: python:alpine3.16
@@ -28,6 +43,9 @@ spec:
       args:
         - "pip install application/requirements.txt"
         - "pycodestyle application"
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol
   - name: djangotests
     container:
       image: python:alpine3.16
@@ -35,18 +53,18 @@ spec:
       args:
         - "pip install application/requirements.txt"
         - "python application/manage.py test"
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol
   - name: build-vets
     container:
-      image: python:alpine3.16
+      image: docker:23.0.1-alpine3.17
       command: [sh, -c]
       args:
-        - "echo build"
-  - name: tag-vets
-    container:
-      image: python:alpine3.16
-      command: [sh, -c]
-      args:
-        - "echo tag"
+        - "docker build -t theshipyard/vets-app:${} ."
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol
   - name: push-vets
     container:
       image: python:alpine3.16
