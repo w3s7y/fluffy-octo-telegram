@@ -17,13 +17,11 @@ spec:
   # The entrypoint template
   - name: vets-ci-workflow
     steps:
-    - - name: clone-the-repo
+    - - name: "Clone the repo"
         template: git-clone
-    - - name: create-venv
+    - - name: "Create python virtualenv"
         template: create-venv
-    - - name: pip-install-requirements-txt
-        template: pip-install
-    - - name: lint-and-test
+    - - name: "Linting and Tests"
         template: lint-and-test-steps
 
   # DAG Templates to parallel up tests
@@ -49,7 +47,8 @@ spec:
       command: [sh, -c]
       workingDir: /workdir/src
       args:
-        - "git log -1"
+      - >
+        git log -1
       volumeMounts:
       - name: workdir
         mountPath: /workdir
@@ -60,17 +59,12 @@ spec:
       image: python:3.9-alpine3.17
       command: [sh, -c]
       workingDir: /workdir
-      args: ["pip install virtualenv; virtualenv venv"]
-      volumeMounts:
-      - name: workdir
-        mountPath: /workdir
-
-  - name: pip-install
-    container:
-      image: python:3.9-alpine3.17
-      command: [sh, -c]
-      workingDir: /workdir
-      args: [". ./venv/bin/activate; pip install -r src/application/requirements.txt"]
+      args:
+      - >
+        pip install virtualenv &&
+        virtualenv venv &&
+        . ./venv/bin/activate &&
+        pip install -r src/application/requirements.txt
       volumeMounts:
       - name: workdir
         mountPath: /workdir
@@ -80,7 +74,14 @@ spec:
       image: python:3.9-alpine3.17
       command: [sh, -c]
       workingDir: /workdir
-      args: [". ./venv/bin/activate; pip install pycodestyle; pycodestyle src/application"]
+      args:
+      - >
+        . ./venv/bin/activate &&
+        pip install pycodestyle &&
+        echo "Running pycodestyle:" &&
+        pycodestyle -v --max-line-length=120
+        --exclude=src/application/vets/migrations
+        src/application
       volumeMounts:
       - name: workdir
         mountPath: /workdir
@@ -97,7 +98,12 @@ spec:
         value: "local"
       - name: "DJANGO_DEBUG"
         value: "True"
-      args: [". ../../venv/bin/activate; python manage.py makemigrations; python manage.py migrate; python manage.py test --timing -v 2"]
+      args:
+      - >
+        . ../../venv/bin/activate &&
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py test --timing -v 2
       volumeMounts:
       - name: workdir
         mountPath: /workdir

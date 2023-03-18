@@ -146,61 +146,61 @@ class VetsTestData(object):
             "name": "Barbara",
             "species": Pet.DOG,
             "owner": "client1",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Johnny",
             "species": Pet.CAT,
             "owner": "client1",
-            "dob": "2021-04-05:09:00:00:000Z"
+            "dob": "2021-04-05 09:00:00.000Z"
         },
         {
             "name": "Rudy",
             "species": Pet.HORSE,
             "owner": "client1",
-            "dob": "2020-01-01:09:00:00:000Z"
+            "dob": "2020-01-01 09:00:00.000Z"
         },
         {
             "name": "Simon",
             "species": Pet.DOG,
             "owner": "client1",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Morty",
             "species": Pet.CAT,
             "owner": "client2",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Rick",
             "species": Pet.DOG,
             "owner": "client2",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Mike",
             "species": Pet.DOG,
             "owner": "client2",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Dick",
             "species": Pet.DOG,
             "owner": "client3",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Harry",
             "species": Pet.DOG,
             "owner": "client3",
-            "dob": "2022-01-01:09:00:00:000Z"
+            "dob": "2022-01-01 09:00:00.000Z"
         },
         {
             "name": "Tom",
             "species": Pet.DOG,
             "owner": "client3",
-            "dob": "2020-01-01:09:00:00:000Z"
+            "dob": "2020-01-01 09:00:00.000Z"
         }
     ]
 
