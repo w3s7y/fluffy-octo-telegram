@@ -4,9 +4,9 @@ vets:
   replicas: 3
   image:
     name: theshipyard/vets-app
-    version: 0.1.1
+    version: 0.1.2
   port: 8000
-  debug: false
+  debug: False
 database:
   claim: "5Gi"
   image:
