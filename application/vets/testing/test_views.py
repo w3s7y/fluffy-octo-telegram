@@ -14,4 +14,3 @@ class TestAuthentication(TestCase):
     def test_get_login_view_is_200(self):
         get_response = self.client.get('/vets/auth/login', follow=True)
         self.assertEqual(get_response.status_code, 200)
-
