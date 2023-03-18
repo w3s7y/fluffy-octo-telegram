@@ -98,6 +98,8 @@ spec:
         value: "local"
       - name: "DJANGO_DEBUG"
         value: "True"
+      - name: "DJANGO_SECRET_KEY"
+        value: "ThisIsForTestingThePipeline9347651726841234576894123576894128976"
       args:
       - >
         . ../../venv/bin/activate &&
