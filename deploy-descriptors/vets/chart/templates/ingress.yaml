@@ -23,10 +23,10 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-pgadminer-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /pgadminer
 spec:
   rules:
-  - host: pgadminer.{{ .Values.environment }}.vets.internal
+  - host: pgadmin.{{ .Values.environment }}.vets.internal
     http:
       paths:
       - path: /
