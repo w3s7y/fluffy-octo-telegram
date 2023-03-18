@@ -13,6 +13,7 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
   templates:
   # The entrypoint template
   - name: vets-ci-workflow
@@ -23,8 +24,10 @@ spec:
         template: create-venv
     - - name: Tests
         template: lint-and-test-steps
+    - - name: Build
+        template: docker-build
 
-  # DAG Templates to parallel up tests
+  # DAG to parallel up tests
   - name: lint-and-test-steps
     dag:
       tasks:
@@ -56,7 +59,7 @@ spec:
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
     container:
-      image: python:3.9-alpine3.17
+      image: "{{ .Values.vets.python_image }}"
       command: [sh, -c]
       workingDir: /workdir
       args:
@@ -71,7 +74,7 @@ spec:
 
   - name: pycodestyle
     container:
-      image: python:3.9-alpine3.17
+      image: "{{ .Values.vets.python_image }}"
       command: [sh, -c]
       workingDir: /workdir
       args:
@@ -88,7 +91,7 @@ spec:
 
   - name: djangotests
     container:
-      image: python:3.9-alpine3.17
+      image: "{{ .Values.vets.python_image }}"
       workingDir: /workdir/src/application
       command: [sh, -c]
       env:
@@ -109,3 +112,13 @@ spec:
       volumeMounts:
       - name: workdir
         mountPath: /workdir
+
+  - name: docker-build
+    container:
+      image: docker:23.0.1-dind-rootless
+      workingDir: /workdir/src
+      command: [sh, -c]
+      args:
+      - >
+        docker build -t theshipyard/vets-app:testpipeline . &&
+        docker images | grep theshipyard
