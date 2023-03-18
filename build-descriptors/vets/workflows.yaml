@@ -174,5 +174,7 @@ spec:
           arguments:
             parameters:
               - name: image
-                value: theshipyard/vets-app:develop-head
+                value: "theshipyard/vets-app"
+              - name: push
+                value: "false"
 
