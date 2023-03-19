@@ -68,11 +68,7 @@ spec:
             - name: python-image
               value: "{{inputs.parameters.python-image}}"
       - name: terraform-fmt
-        template: terraform
-        arguments:
-          parameters:
-            - name: action
-              value: "fmt --check"
+        template: terraform-fmt
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
@@ -177,15 +173,15 @@ spec:
       - >
         apk add helm &&
         export CHARTS=$(find . -name chart -type d) &&
-        for chart in ${CHARTS} \
-        do \
-          for values_file in $(find ${chart} -name values-*.yaml -type f) \
-          do \
-            echo "*************************************************************************************************" \
-            echo "Running helm template for chart: ${chart}  Using values file: ${values_file}" \
-            echo "*************************************************************************************************" \
-            helm template test ${chart} --values ${values_file} --debug \
-          done \
+        for chart in ${CHARTS}
+        do
+        for values_file in $(find ${chart} -name values-*.yaml -type f)
+        do
+        echo "*************************************************************************************************"
+        echo "Running helm template for chart: ${chart}  Using values file: ${values_file}"
+        echo "*************************************************************************************************"
+        helm template test ${chart} --values ${values_file} --debug
+        done
         done
 
   - name: buildkit-build
@@ -201,10 +197,7 @@ spec:
               - name: push
                 value: "false"
 
-  - name: terraform
-    inputs:
-      parameters:
-        - name: action
+  - name: terraform-fmt
     container:
       image: hashicorp/terraform:1.4.2
       volumeMounts:
@@ -213,5 +206,4 @@ spec:
       workingDir: /workdir/src
       command: ["sh", "-c"]
       args:
-      - >
-        terraform "{{inputs.parameters.action}}"
+        - "terraform fmt --check --recursive"
