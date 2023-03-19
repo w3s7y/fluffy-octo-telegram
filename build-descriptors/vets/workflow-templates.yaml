@@ -42,9 +42,15 @@ spec:
         command:
           - buildctl-daemonless.sh
         args:
-        - >
-          build --frontend dockerfile.v0 --local context=. --local dockerfile=. --output \
-          type=image,name=docker.io/{{ inputs.parameters.image }},push={{ inputs.parameters.push }}
+        - build
+        - --frontend
+        - dockerfile.v0
+        - --local
+        - context=.
+        - --local
+        - dockerfile=.
+        - --output
+        - type=image,name=docker.io/{{ inputs.parameters.image }},push={{ inputs.parameters.push }}
 
 ---
 apiVersion: argoproj.io/v1alpha1
