@@ -1,5 +1,6 @@
 ---
 environment: dev
+root_domain: vets.internal
 vets:
   replicas: 1
   image:
@@ -8,6 +9,13 @@ vets:
   port: 8000
   debug: True
 database:
+  pgadmin:
+    enabled: true
+    sidecar:
+      image: dpage/pgadmin4
+      tag: 6.21
+    ingress:
+      uri: pgadmin
   claim: "1Gi"
   image:
     name: postgres

@@ -20,7 +20,21 @@ spec:
   ports:
   - port: 5432
     name: db
-  - port: 8080
-    name: adminer
   selector:
     app: {{ .Release.Name }}-database
+
+{{- if .Values.database.pgadmin.enabled | default false }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vets-pgadmin
+  labels:
+    app: vets-pgadmin
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: {{ $.Release.Name }}-database
+{{- end }}

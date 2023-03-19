@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: {{ .Values.environment }}.vets.internal
+  - host: {{ .Values.environment }}.{{ .Values.root_domain }}
     http:
       paths:
       - path: /
@@ -16,23 +16,26 @@ spec:
           service:
             name: {{ .Release.Name }}
             port:
-              number: 8000
+              number: {{ .Values.vets.port }}
+
+{{- if .Values.database.pgadmin.enabled | default false }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-pgadminer-ingress
+  name: {{ .Release.Name }}-pgadmin-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /pgadminer
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: pgadmin.{{ .Values.environment }}.vets.internal
+  - host: "{{ .Values.database.pgadmin.ingress.uri }}.{{ .Values.environment }}.{{ .Values.root_domain }}"
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: vets-database
+            name: vets-pgadmin
             port:
-              number: 8080
+              number: 80
+{{- end }}
