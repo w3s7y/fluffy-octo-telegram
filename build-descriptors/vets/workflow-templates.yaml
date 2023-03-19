@@ -85,7 +85,6 @@ spec:
         source: |
           slack-notify
 
-
     - name: file
       inputs:
         artifacts:
