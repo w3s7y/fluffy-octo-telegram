@@ -2,5 +2,5 @@
 **/.idea
 **/*.sqlite3
 **/local-cluster
-application/vets/migrations
 **/__pycache__
+application/vets/migrations

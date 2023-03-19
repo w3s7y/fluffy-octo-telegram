@@ -10,7 +10,8 @@ class VetsTestRunner(DiscoverRunner):
     """
     def setup_databases(self, **kwargs):
         """
-        Create an admin user and inject some test data to the DB before TestCases fire up.
+        Create an admin user and inject some test data to
+        the DB before TestCases fire up.
         :param kwargs:
         :return:
         """
@@ -32,21 +33,25 @@ class VetsTestRunner(DiscoverRunner):
             usern = client.pop("client_username")
             surgery = client.pop("registered_surgery")
             address = Address.objects.create(**client)
-            Client.objects.create_user(username=usern,
-                                       email=f"{usern}@vets.internal",
-                                       home_address=address,
-                                       registered_surgery=Surgery.objects.get(name=surgery))
+            Client.objects.create_user(
+                username=usern,
+                email=f"{usern}@vets.internal",
+                home_address=address,
+                registered_surgery=Surgery.objects.get(name=surgery)
+            )
 
         for vet in td.VetsTestData.VETS:
             vet_username = vet.pop("vet_username")
             base = vet.pop("base_surgery")
             salary = vet.pop("salary")
             address = Address.objects.create(**vet)
-            Vet.objects.create_user(username=vet_username,
-                                    email=f"{vet_username}@vets.internal",
-                                    base_surgery=Surgery.objects.get(name=base),
-                                    home_address=address,
-                                    salary=salary)
+            Vet.objects.create_user(
+                username=vet_username,
+                email=f"{vet_username}@vets.internal",
+                base_surgery=Surgery.objects.get(name=base),
+                home_address=address,
+                salary=salary
+            )
 
         for pet in td.VetsTestData.PETS:
             owner = Client.objects.get(username=pet.pop("owner"))
@@ -56,7 +61,8 @@ class VetsTestRunner(DiscoverRunner):
             vet = Vet.objects.get(username=appt.pop("vet"))
             cli = Client.objects.get(username=appt.pop("client"))
             pet = Pet.objects.get(name="Barbara", owner=cli)
-            Appointment.objects.create(appointment_date_time=appt.pop("appointment_date_time"),
-                                       vet=vet, pet=pet, client=cli, details=appt.pop("details"),
-                                       surgery=cli.registered_surgery)
+            Appointment.objects.create(
+                appointment_date_time=appt.pop("appointment_date_time"),
+                vet=vet, pet=pet, client=cli, details=appt.pop("details"),
+                surgery=cli.registered_surgery)
         return super_init

@@ -1,0 +1,209 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: vets-ci-
+  name: vets-ci
+spec:
+  entrypoint: vets-ci-workflow
+  volumeClaimTemplates:
+  - metadata:
+      name: workdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+  templates:
+  # The entrypoint template
+  - name: vets-ci-workflow
+    steps:
+    - - name: Clone
+        template: git-clone
+        arguments:
+          parameters:
+            - name: git-ref
+              value: "master"
+    - - name: Tests
+        template: lint-and-test-steps
+        arguments:
+          parameters:
+            - name: python-image
+              value: "python:3.9-alpine3.17"
+    - - name: Build
+        template: docker-build
+
+  # DAG to parallel up test steps
+  - name: lint-and-test-steps
+    inputs:
+      parameters:
+        - name: python-image
+    dag:
+      tasks:
+      - name: create-venv
+        template: create-venv
+        arguments:
+          parameters:
+            - name: python-image
+              value: "python:3.9-alpine3.17"
+      - name: pycodestyle
+        template: pycodestyle
+        dependencies: [create-venv]
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
+      - name: django-tests
+        template: djangotests
+        dependencies: [create-venv]
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
+      - name: helm-templates
+        template: helmtemplates
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{inputs.parameters.python-image}}"
+      - name: terraform-fmt
+        template: terraform
+        arguments:
+          parameters:
+            - name: action
+              value: "fmt"
+
+  # template to clone the repo and leave it in a folder for other containers.
+  - name: git-clone
+    inputs:
+      parameters:
+        - name: git-ref
+      artifacts:
+      - name: fluffy-octo-telegram-source
+        path: /workdir/src
+        git:
+          repo: https://github.com/w3s7y/fluffy-octo-telegram.git
+          revision: "{{inputs.parameters.git-ref}}"
+    container:
+      image: alpine/git:2.36.3
+      command: [sh, -c]
+      workingDir: /workdir/src
+      args:
+      - >
+        git log -1
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+
+  # Create a blank venv in the workdir for the other containers
+  - name: create-venv
+    inputs:
+      parameters:
+        - name: python-image
+    container:
+      image: "{{inputs.parameters.python-image}}"
+      command: [sh, -c]
+      workingDir: /workdir
+      args:
+      - >
+        pip install virtualenv &&
+        virtualenv venv &&
+        . ./venv/bin/activate &&
+        pip install -r src/application/requirements.txt
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+
+  - name: pycodestyle
+    inputs:
+      parameters:
+        - name: python-image
+    container:
+      image: "{{inputs.parameters.python-image}}"
+      command: [sh, -c]
+      workingDir: /workdir
+      args:
+      - >
+        . ./venv/bin/activate &&
+        pip install pycodestyle &&
+        echo "Running pycodestyle:" &&
+        pycodestyle -v --max-line-length=120
+        --exclude=src/application/vets/migrations
+        src/application
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+
+  - name: djangotests
+    inputs:
+      parameters:
+        - name: python-image
+    container:
+      image: "{{inputs.parameters.python-image}}"
+      workingDir: /workdir/src/application
+      command: [sh, -c]
+      env:
+      - name: "DJANGO_CACHE"
+        value: "local"
+      - name: "DJANGO_DATABASE"
+        value: "local"
+      - name: "DJANGO_DEBUG"
+        value: "True"
+      - name: "DJANGO_SECRET_KEY"
+        value: "ThisIsForTestingThePipeline9347651726841234576894123576894128976"
+      args:
+      - >
+        . ../../venv/bin/activate &&
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py test --timing -v 2
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+
+  - name: helmtemplates
+    inputs:
+      parameters:
+        - name: python-image
+    container:
+      image: "{{inputs.parameters.python-image}}"
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+      workingDir: /workdir/src
+      command: [ "sh", "-c"]
+      args:
+      - >
+        apk add helm &&
+        export CHARTS=$(find . -name chart -type d) &&
+        for chart in ${CHARTS}; do helm template --debug test ${chart}; done
+
+  - name: docker-build
+    steps:
+      - - name: buildkit-image
+          templateRef:
+            name: buildkit
+            template: build
+          arguments:
+            parameters:
+              - name: image
+                value: "theshipyard/vets-app"
+              - name: push
+                value: "false"
+
+  - name: terraform
+    inputs:
+      parameters:
+        - name: action
+    container:
+      image: hashicorp/terraform:1.4.2
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+      workingDir: /workdir/src
+      command: [ "sh", "-c"]
+      args:
+      - >
+        echo "{{inputs.parameters.action}}" &&
+        terraform --version

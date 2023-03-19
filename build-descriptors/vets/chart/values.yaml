@@ -1,5 +1,0 @@
----
-events:
-  namespace: argo-events
-workflow:
-  namespace: argo-workflows
