@@ -17,13 +17,11 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-      - name: "postgres"
+      - name: postgres
         image: "{{ .Values.database.image.name }}:{{ .Values.database.image.version }}"
         ports:
         - containerPort: {{ .Values.database.port }}
           name: db
-        - containerPort: 8080
-          name: adminer
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
@@ -36,6 +34,16 @@ spec:
         envFrom:
           - configMapRef:
               name: "{{ .Release.Name }}-database"
+      {{ if .Values.database.pgadmin.enabled | default false }}
+      - name: pgadmin
+        image: {{ .Values.database.pgadmin.sidecar.image }}:{{ .Values.database.pgadmin.sidecar.tag }}
+        ports:
+        - containerPort: 80
+          name: http
+        envFrom:
+          - configMapRef:
+              name: "{{ .Release.Name }}-database"
+      {{ end }}
   volumeClaimTemplates:
   - metadata:
       name: data

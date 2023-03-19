@@ -1,5 +1,6 @@
 ---
 environment: production
+root_domain: vets.internal
 vets:
   replicas: 3
   image:
@@ -8,6 +9,8 @@ vets:
   port: 8000
   debug: False
 database:
+  pgadmin:
+    enabled: false
   claim: "5Gi"
   image:
     name: postgres

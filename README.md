@@ -1,6 +1,6 @@
 # fluffy-octo-telegram
 
-A [Django](https://docs.djangoproject.com/en/4.0/) and [Rest Framework](https://www.django-rest-framework.org/)
+A [Django](https://docs.djangoproject.com/) and [Rest Framework](https://www.django-rest-framework.org/)
 application with a `vets` application (Django learning playground).
 
 This project was originally a pure django learning environment, it has since been extended to also act as my
@@ -15,6 +15,10 @@ models for a `client`, a `vet`, a `pet`, `appointment` and so on.
 
 [An attempt was made](https://github.com/w3s7y/fluffy-octo-telegram/issues?q=label%3Astory) at user stories to track 
 features I'm pursuing.
+
+# Dockerhub
+[Here](https://hub.docker.com/repository/docker/theshipyard/vets-app/general) you will find the built version
+of `vets-app`  
 
 # The wiki
 The technical documentation has moved to 

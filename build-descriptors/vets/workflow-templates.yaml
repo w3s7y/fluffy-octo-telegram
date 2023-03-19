@@ -15,10 +15,13 @@ spec:
     - name: build
       inputs:
         parameters:
-          # Name of the image to push
+          # Name of the image (including org e.g. 'theshipyard/vets-app')
           - name: image
-          # push to the remote after build
+          # push to the remote after build?
           - name: push
+          # version label for image
+          - name: version
+            value: "latest"
       volumes:
         - name: docker-config
           secret:
@@ -39,15 +42,9 @@ spec:
         command:
           - buildctl-daemonless.sh
         args:
-          - build
-          - --frontend
-          - dockerfile.v0
-          - --local
-          - context=.
-          - --local
-          - dockerfile=.
-          - --output
-          - type=image,name=docker.io/{{ inputs.parameters.image }},push={{ inputs.parameters.push }}
+        - >
+          build --frontend dockerfile.v0 --local context=. --local dockerfile=. --output \
+          type=image,name=docker.io/{{ inputs.parameters.image }},push={{ inputs.parameters.push }}
 
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -87,7 +84,6 @@ spec:
         command: ["sh"]
         source: |
           slack-notify
-
 
     - name: file
       inputs:

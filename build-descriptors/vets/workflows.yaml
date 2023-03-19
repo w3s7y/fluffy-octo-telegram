@@ -32,7 +32,7 @@ spec:
             - name: python-image
               value: "python:3.9-alpine3.17"
     - - name: Build
-        template: docker-build
+        template: buildkit-build
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
@@ -72,7 +72,7 @@ spec:
         arguments:
           parameters:
             - name: action
-              value: "fmt"
+              value: "fmt --check"
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
@@ -177,9 +177,18 @@ spec:
       - >
         apk add helm &&
         export CHARTS=$(find . -name chart -type d) &&
-        for chart in ${CHARTS}; do helm template --debug test ${chart}; done
+        for chart in ${CHARTS} \
+        do \
+          for values_file in $(find ${chart} -name values-*.yaml -type f) \
+          do \
+            echo "*************************************************************************************************" \
+            echo "Running helm template for chart: ${chart}  Using values file: ${values_file}" \
+            echo "*************************************************************************************************" \
+            helm template test ${chart} --values ${values_file} --debug \
+          done \
+        done
 
-  - name: docker-build
+  - name: buildkit-build
     steps:
       - - name: buildkit-image
           templateRef:
@@ -202,8 +211,7 @@ spec:
       - name: workdir
         mountPath: /workdir
       workingDir: /workdir/src
-      command: [ "sh", "-c"]
+      command: ["sh", "-c"]
       args:
       - >
-        echo "{{inputs.parameters.action}}" &&
-        terraform --version
+        terraform "{{inputs.parameters.action}}"
