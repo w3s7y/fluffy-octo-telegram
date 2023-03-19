@@ -32,7 +32,7 @@ spec:
             - name: python-image
               value: "python:3.9-alpine3.17"
     - - name: Build
-        template: docker-build
+        template: buildkit-build
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
@@ -179,7 +179,7 @@ spec:
         export CHARTS=$(find . -name chart -type d) &&
         for chart in ${CHARTS}; do helm template --debug test ${chart}; done
 
-  - name: docker-build
+  - name: buildkit-build
     steps:
       - - name: buildkit-image
           templateRef:
