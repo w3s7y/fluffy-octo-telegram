@@ -33,6 +33,12 @@ spec:
               value: "python:3.9-alpine3.17"
     - - name: Build
         template: buildkit-build
+    - - name: Notify
+        template: post-to-discord-ci-notifications-channel
+        arguments:
+          parameters:
+            - name: message
+              value: "Successful Build for fluffy-octo-telegram"
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
@@ -46,7 +52,7 @@ spec:
         arguments:
           parameters:
             - name: python-image
-              value: "python:3.9-alpine3.17"
+              value: "{{inputs.parameters.python-image}}"
       - name: pycodestyle
         template: pycodestyle
         dependencies: [create-venv]
@@ -172,8 +178,7 @@ spec:
       args:
       - >
         apk add helm &&
-        export CHARTS=$(find . -name chart -type d) &&
-        for chart in ${CHARTS};
+        for chart in $(find . -name chart -type d);
         do
         for values_file in $(find ${chart} -name values-*.yaml -type f);
         do
@@ -207,3 +212,23 @@ spec:
       command: ["sh", "-c"]
       args:
         - "terraform fmt --check --recursive"
+
+  - name: post-to-discord-ci-notifications-channel
+    inputs:
+      parameters:
+        - name: message
+    container:
+      image: appropriate/curl:latest
+      command: [sh, -c]
+      env:
+        - name: DISCORD_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: discord-webhook
+              key: url
+      args: [
+        "curl --location --request POST \
+        --url ${DISCORD_WEBHOOK} \
+        --header 'Content-Type: application/json' \
+        --data-raw '{ \"username\": \"argo_workflow_bot\", \"content\": \"{{inputs.parameters.message}}\" }'",
+      ]
