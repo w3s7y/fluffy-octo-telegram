@@ -40,6 +40,14 @@ spec:
         ports:
         - containerPort: 80
           name: http
+        env:
+        - name: PGADMIN_DEFAULT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: vets-app
+              key: POSTGRES_PASSWORD
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: "admin@{{ .Values.root_domain }}"
         envFrom:
           - configMapRef:
               name: "{{ .Release.Name }}-database"
