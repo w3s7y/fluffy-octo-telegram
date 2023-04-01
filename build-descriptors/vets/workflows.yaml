@@ -202,7 +202,7 @@ spec:
               - name: image
                 value: "theshipyard/vets-app"
               - name: push
-                value: "false"
+                value: "true"
 
   - name: terraform-fmt
     container:
@@ -210,10 +210,10 @@ spec:
       volumeMounts:
       - name: workdir
         mountPath: /workdir
-      workingDir: /workdir/src
+      workingDir: /workdir
       command: ["sh", "-c"]
       args:
-        - "terraform fmt --check --recursive"
+        - "terraform fmt -check -recursive -diff"
 
   - name: post-to-discord-ci-notifications-channel
     inputs:
