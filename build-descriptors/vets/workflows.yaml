@@ -5,7 +5,9 @@ metadata:
   generateName: vets-ci-
   name: vets-ci
 spec:
+  # Point to a template to use as the entrypoint for the whole pipeline.
   entrypoint: vets-ci-workflow
+  # Claim some storage to pass around the build templates
   volumeClaimTemplates:
   - metadata:
       name: workdir
@@ -24,7 +26,7 @@ spec:
         arguments:
           parameters:
             - name: git-ref
-              value: "master"
+              value: "10-final-push-for-this-ticket"
     - - name: Tests
         template: lint-and-test-steps
         arguments:
@@ -204,7 +206,7 @@ spec:
 
   - name: terraform-fmt
     container:
-      image: hashicorp/terraform:1.4.2
+      image: hashicorp/terraform:1.4.4
       volumeMounts:
       - name: workdir
         mountPath: /workdir
