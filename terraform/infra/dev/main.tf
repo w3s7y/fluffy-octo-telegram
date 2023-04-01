@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "4.61.0"
     }
   }
@@ -10,7 +10,7 @@ terraform {
 provider "aws" {}
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source         = "../../modules/vpc"
   vpc_cidr_block = "172.0.0.0/8"
 }
 
