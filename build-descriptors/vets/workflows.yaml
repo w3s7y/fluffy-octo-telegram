@@ -40,7 +40,9 @@ spec:
         arguments:
           parameters:
             - name: message
-              value: "Successful Build for fluffy-octo-telegram"
+              value: "Successful Build of {{ workflow.name }}"
+    - - name: Release
+        template: release-steps
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
@@ -99,6 +101,31 @@ spec:
       volumeMounts:
       - name: workdir
         mountPath: /workdir
+
+  - name: git-tag-and-push
+    inputs:
+      parameters:
+        - name: tag
+    container:
+      image: alpine/git:2.36.3
+      command: [ sh, -c ]
+      workingDir: /workdir/src
+      args:
+        - >
+          git tag "{{ inputs.parameters.tag }}" &&
+          git push --tags
+
+  - name: get-latest-git-rev
+    container:
+      image: alpine/git:2.36.3
+      command: [ sh, -c ]
+      workingDir: /workdir/src
+      args:
+        - git log -q --oneline -1 --no-expand-tabs|awk '{print $1}'
+      volumeMounts:
+      - name: workdir
+        mountPath: /workdir
+
 
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
@@ -228,9 +255,16 @@ spec:
             secretKeyRef:
               name: discord-webhook
               key: url
-      args: [
-        "curl --location --request POST \
-        --url ${DISCORD_WEBHOOK} \
-        --header 'Content-Type: application/json' \
-        --data-raw '{ \"username\": \"argo_workflow_bot\", \"content\": \"{{inputs.parameters.message}}\" }'",
-      ]
+      args:
+      - >
+        curl --location --request POST 
+        --url ${DISCORD_WEBHOOK} 
+        --header 'Content-Type: application/json' 
+        --data-raw 
+        '{ \"username\": \"argo_workflow_bot\", \"content\": \"{{ workflow.name }} {{inputs.parameters.message}}\" }'
+
+  - name: release-steps
+    dag:
+      tasks:
+      - name: get-latest-git-rev
+        template: get-latest-git-rev

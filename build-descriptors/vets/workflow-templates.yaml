@@ -19,9 +19,9 @@ spec:
           - name: image
           # push to the remote after build?
           - name: push
-          # version label for image
-          - name: version
-            value: "latest"
+          # wokringdir (where the Dockerfile is)
+          - name: workdir
+            value: src
       volumes:
         - name: docker-config
           secret:
@@ -33,7 +33,7 @@ spec:
             mountPath: /workdir
           - name: docker-config
             mountPath: /.docker
-        workingDir: /workdir/src
+        workingDir: "/workdir/{{ inputs.parameters.workdir }}"
         env:
           - name: BUILDKITD_FLAGS
             value: --oci-worker-no-process-sandbox
@@ -42,91 +42,9 @@ spec:
         command:
           - buildctl-daemonless.sh
         args:
-        - build
-        - --frontend
-        - dockerfile.v0
-        - --local
-        - context=.
-        - --local
-        - dockerfile=.
-        - --output
-        - type=image,name=docker.io/{{ inputs.parameters.image }},push={{ inputs.parameters.push }}
-
----
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
-metadata:
-  annotations:
-    workflows.argoproj.io/description: >-
-      this workflow template contains a template to make simple notifications and a template to upload a file with a header and a footer.
-    workflows.argoproj.io/maintainer: '@descrepes'
-    workflows.argoproj.io/tags: slack
-    workflows.argoproj.io/version: '>= 2.9.0'
-  name: slack
-spec:
-  templates:
-    - name: notify
-      inputs:
-        parameters:
-          - name: channel
-          - name: message
-          - name: color
-          - name: slack-secret
-      script:
-        imagePullPolicy: "Always"
-        image: descrepes/slack-cli:latest
-        env:
-          - name: SLACK_CHANNEL
-            value: "{{inputs.parameters.channel}}"
-          - name: SLACK_MESSAGE
-            value: "{{inputs.parameters.message}}"
-          - name: SLACK_COLOR
-            value: "{{inputs.parameters.color}}"
-          - name: SLACK_WEBHOOK
-            valueFrom:
-              secretKeyRef:
-                name: "{{inputs.parameters.slack-secret}}"
-                key: webhook
-        command: ["sh"]
-        source: |
-          slack-notify
-
-    - name: file
-      inputs:
-        artifacts:
-          - name: file
-            path: /home/log
-            mode: 0755
-        parameters:
-          - name: header
-            default: ""
-          - name: footer
-            default: ""
-          - name: team
-          - name: channel
-          - name: color
-            default: "3399FF"
-          - name: slack-secret
-      script:
-        imagePullPolicy: "Always"
-        image: descrepes/slack-cli:latest
-        env:
-          - name: SLACK_CHANNEL
-            value: "{{inputs.parameters.channel}}"
-          - name: SLACK_COLOR
-            value: "{{inputs.parameters.color}}"
-          - name: SLACK_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: "{{inputs.parameters.slack-secret}}"
-                key: token
-          - name: SLACK_WEBHOOK
-            valueFrom:
-              secretKeyRef:
-                name: "{{inputs.parameters.slack-secret}}"
-                key: webhook
-        command: ["sh"]
-        source: |
-          if [ ! -z "{{inputs.parameters.header}}" ]; then SLACK_MESSAGE="{{inputs.parameters.header}}" slack-notify; fi
-          slack-cli -d {{inputs.parameters.channel}} -T {{inputs.parameters.team}} -f /home/log
-          if [ ! -SLACK_WEBHOOKz "{{inputs.parameters.footer}}" ]; then SLACK_MESSAGE="{{inputs.parameters.footer}}" slack-notify; fi
+        - >
+          build --metadata-file /workdir/buildkit-metadata.json
+          --frontend dockerfile.v0 --local context=.
+          --local dockerfile=. --output
+          type=image,name=docker.io/{{ inputs.parameters.image }},
+          push={{ inputs.parameters.push }},push-by-digest=true
