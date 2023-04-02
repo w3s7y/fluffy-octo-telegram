@@ -1,4 +1,5 @@
 ---
+# If you wanted sickness inducing yaml, you came to the right place!
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -7,7 +8,22 @@ metadata:
 spec:
   # Point to a template to use as the entrypoint for the whole pipeline.
   entrypoint: vets-ci-workflow
-  # Claim some storage to pass around the build templates
+
+  # Top level variables for the pipeline
+  # Mostly used to globally define image versions used in the pipeline
+  # Also used to define the git ref to use for the build.
+  arguments:
+    parameters:
+      - name: python-image
+        value: "python:3.9-alpine3.17"
+      - name: git-image
+        value: "alpine/git:2.36.3"
+      - name: terraform-image
+        value: "hashicorp/terraform:1.4.4"
+      - name: git-ref
+        value: "10-final-push-for-this-ticket"
+
+  # Claim some storage to pass around the build steps
   volumeClaimTemplates:
   - metadata:
       name: workdir
@@ -18,37 +34,48 @@ spec:
           storage: 1Gi
 
   templates:
-  # The entrypoint template
+  # The main entrypoint for the pipeline
   - name: vets-ci-workflow
+    inputs:
+      # Essentially just reference the top-level args so we can use them in this template.
+      parameters:
+        - name: git-ref
+        - name: python-image
+        - name: git-image
+        - name: terraform-image
     steps:
     - - name: Clone
         template: git-clone
         arguments:
           parameters:
             - name: git-ref
-              value: "10-final-push-for-this-ticket"
+              value: "{{ inputs.parameters.git-ref }}"
     - - name: Tests
         template: lint-and-test-steps
         arguments:
           parameters:
             - name: python-image
-              value: "python:3.9-alpine3.17"
+              value: "{{ inputs.parameters.python-image }}"
+            - name: terraform-image
+              value: "{{ inputs.parameters.terraform-image }}"
     - - name: Build
         template: buildkit-build
-    - - name: Notify
-        template: post-to-discord-ci-notifications-channel
         arguments:
           parameters:
-            - name: message
-              value: "Successful Build of {{ workflow.name }}"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+            - name: tag
+              value: "{{ steps.Clone.outputs.parameters.commit-sha-short }}"
     - - name: Release
         template: release-steps
+        when: "{{ inputs.parameters.git-ref }} == master"
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
     inputs:
       parameters:
         - name: python-image
+        - name: terraform-image
     dag:
       tasks:
       - name: create-venv
@@ -79,6 +106,10 @@ spec:
               value: "{{inputs.parameters.python-image}}"
       - name: terraform-fmt
         template: terraform-fmt
+        arguments:
+          parameters:
+            - name: terraform-image
+              value: "{{ inputs.parameters.terraform-image }}"
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
@@ -90,17 +121,26 @@ spec:
         path: /workdir/src
         git:
           repo: https://github.com/w3s7y/fluffy-octo-telegram.git
-          revision: "{{inputs.parameters.git-ref}}"
+          revision: "{{ inputs.parameters.git-ref }}"
     container:
       image: alpine/git:2.36.3
       command: [sh, -c]
       workingDir: /workdir/src
       args:
-      - >
-        git log -1
+        - >
+          echo $(git log -q --oneline -1 --no-expand-tabs|awk '{print $1}') > /tmp/latest-commit.txt &&
+          echo $(git tag | tail -1) > /tmp/latest-tag.txt
       volumeMounts:
       - name: workdir
         mountPath: /workdir
+    outputs:
+      parameters:
+        - name: commit-sha-short
+          valueFrom:
+            path: /tmp/latest-commit.txt
+        - name: latest-tag
+          valueFrom:
+            path: /tmp/latest-tag.txt
 
   - name: git-tag-and-push
     inputs:
@@ -121,11 +161,15 @@ spec:
       command: [ sh, -c ]
       workingDir: /workdir/src
       args:
-        - git log -q --oneline -1 --no-expand-tabs|awk '{print $1}'
+        - echo $(git log -q --oneline -1 --no-expand-tabs|awk '{print $1}') > /tmp/git-ref.txt
       volumeMounts:
       - name: workdir
         mountPath: /workdir
-
+    outputs:
+      parameters:
+        - name: git-ref
+          valueFrom:
+            path: /tmp/git-ref.txt
 
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
@@ -219,21 +263,67 @@ spec:
         done;
 
   - name: buildkit-build
-    steps:
-      - - name: buildkit-image
-          templateRef:
-            name: buildkit
-            template: build
-          arguments:
-            parameters:
-              - name: image
-                value: "theshipyard/vets-app"
-              - name: push
-                value: "true"
+    inputs:
+      parameters:
+        - name: python-image
+        - name: tag
+        - name: image
+          value: "theshipyard/vets-app"
+        - name: push
+          value: "true"
+    dag:
+      tasks:
+      - name: buildkit-image
+        templateRef:
+          name: buildkit
+          template: build
+        arguments:
+          parameters:
+            - name: image
+              value: "{{ inputs.parameters.image }}"
+            - name: push
+              value: "{{ inputs.parameters.push }}"
+            - name: tag
+              value: "{{ inputs.parameters.tag }}"
+      - name: print-build-metadata
+        template: print-build-metadata
+        dependencies: [buildkit-image]
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+            - name: metadata
+              value: "{{ tasks.buildkit-image.outputs.parameters.metadata }}"
+      - name: notify
+        template: post-to-discord-ci-notifications-channel
+        dependencies: [buildkit-image]
+        arguments:
+          parameters:
+            - name: message
+              value: "Built image {{ inputs.parameters.image }}:{{ inputs.parameters.tag }} with push={{ inputs.parameters.push }}"
 
-  - name: terraform-fmt
+  - name: print-build-metadata
+    inputs:
+      parameters:
+        - name: python-image
+        - name: metadata
     container:
-      image: hashicorp/terraform:1.4.4
+      image: "{{inputs.parameters.python-image}}"
+      volumeMounts:
+        - name: workdir
+          mountPath: /workdir
+      workingDir: /workdir/src
+      command: [ "echo" ]
+      args:
+        - "{{ inputs.parameters.metadata }}"
+
+  # Terraform format check / basic lint
+  - name: terraform-fmt
+    inputs:
+      parameters:
+        - name: terraform-image
+    container:
+      image: "{{ inputs.parameters.terraform-image }}"
       volumeMounts:
       - name: workdir
         mountPath: /workdir
@@ -242,6 +332,7 @@ spec:
       args:
         - "terraform fmt -check -recursive -diff"
 
+  # POST to discord
   - name: post-to-discord-ci-notifications-channel
     inputs:
       parameters:
@@ -256,15 +347,26 @@ spec:
               name: discord-webhook
               key: url
       args:
-      - >
-        curl --location --request POST 
-        --url ${DISCORD_WEBHOOK} 
-        --header 'Content-Type: application/json' 
-        --data-raw 
-        '{ \"username\": \"argo_workflow_bot\", \"content\": \"{{ workflow.name }} {{inputs.parameters.message}}\" }'
+        - curl
+        - --location
+        - --request
+        - POST
+        - --url
+        - ${DISCORD_WEBHOOK}
+        - --header
+        - 'Content-Type: application/json'
+        - --data-raw
+        - '{ "username": "argo_workflow_bot", "content": "{{ inputs.parameters.message }}" }'
 
+  # Release steps, as a DAG.
   - name: release-steps
     dag:
       tasks:
       - name: get-latest-git-rev
         template: get-latest-git-rev
+      - name: notify
+        template: post-to-discord-ci-notifications-channel
+        arguments:
+          parameters:
+            - name: message
+              value: "Release {{ tasks.get-latest-git-rev.result }} made"
