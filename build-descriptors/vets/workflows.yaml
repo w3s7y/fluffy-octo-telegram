@@ -69,6 +69,12 @@ spec:
     - - name: Release
         template: release-steps
         when: "{{ inputs.parameters.git-ref }} == master"
+        arguments:
+          parameters:
+            - name: last-semver
+              value: "{{ steps.Clone.outputs.parameters.latest-tag }}"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
@@ -154,22 +160,6 @@ spec:
         - >
           git tag "{{ inputs.parameters.tag }}" &&
           git push --tags
-
-  - name: get-latest-git-rev
-    container:
-      image: alpine/git:2.36.3
-      command: [ sh, -c ]
-      workingDir: /workdir/src
-      args:
-        - echo $(git log -q --oneline -1 --no-expand-tabs|awk '{print $1}') > /tmp/git-ref.txt
-      volumeMounts:
-      - name: workdir
-        mountPath: /workdir
-    outputs:
-      parameters:
-        - name: git-ref
-          valueFrom:
-            path: /tmp/git-ref.txt
 
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
@@ -301,6 +291,8 @@ spec:
           parameters:
             - name: message
               value: "Built image {{ inputs.parameters.image }}:{{ inputs.parameters.tag }} with push={{ inputs.parameters.push }}"
+            - name: title
+              value: "Build successful"
 
   - name: print-build-metadata
     inputs:
@@ -337,6 +329,7 @@ spec:
     inputs:
       parameters:
         - name: message
+        - name: title
     container:
       image: appropriate/curl:latest
       command: [sh, -c]
@@ -347,26 +340,52 @@ spec:
               name: discord-webhook
               key: url
       args:
-        - curl
-        - --location
-        - --request
-        - POST
-        - --url
-        - ${DISCORD_WEBHOOK}
-        - --header
-        - 'Content-Type: application/json'
-        - --data-raw
-        - '{ "username": "argo_workflow_bot", "content": "{{ inputs.parameters.message }}" }'
+        - >
+          curl --location --request POST --url ${DISCORD_WEBHOOK}
+          --header 'Content-Type: application/json' --data-raw
+          '{ 
+            "username": "argo_workflow_bot", 
+            "content": "{{inputs.parameters.message}}"
+          }'
 
-  # Release steps, as a DAG.
+  - name: create-new-semver
+    inputs:
+      parameters:
+        - name: last-semver
+        - name: python-image
+    container:
+      image: "{{ inputs.parameters.python-image }}"
+      command: ["sh", "-c"]
+      args:
+        - >
+          pip install semver &&
+          python -c << EOF
+          import semver
+          with open('/tmp/new-semver.txt', 'w') as outputhandle:
+            outputhandle.write(
+              semver.VersionInfo.parse("{{ inputs.parameters.last-semver }}").bump_patch()
+            )
+          EOF
+    outputs:
+      parameters:
+        - name: new-semver
+          valueFrom:
+            path: /tmp/new-semver.txt
+
+
+    # Release steps, as a DAG.
   - name: release-steps
+    inputs:
+      parameters:
+        - name: last-semver
+        - name: python-image
     dag:
       tasks:
-      - name: get-latest-git-rev
-        template: get-latest-git-rev
-      - name: notify
-        template: post-to-discord-ci-notifications-channel
+      - name: create-new-semver
         arguments:
           parameters:
-            - name: message
-              value: "Release {{ tasks.get-latest-git-rev.result }} made"
+            - name: last-semver
+              value: "{{ inputs.parameters.last-semver }}"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+        template: create-new-semver
