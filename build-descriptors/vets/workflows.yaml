@@ -348,7 +348,7 @@ spec:
             "content": "{{inputs.parameters.message}}"
           }'
 
-  - name: create-new-semver
+  - name: get-bumped-patch-release
     inputs:
       parameters:
         - name: last-semver
@@ -372,8 +372,7 @@ spec:
           valueFrom:
             path: /tmp/new-semver.txt
 
-
-    # Release steps, as a DAG.
+  # Release steps, as a DAG.
   - name: release-steps
     inputs:
       parameters:
@@ -381,7 +380,7 @@ spec:
         - name: python-image
     dag:
       tasks:
-      - name: create-new-semver
+      - name: get-bumped-patch-release
         arguments:
           parameters:
             - name: last-semver
