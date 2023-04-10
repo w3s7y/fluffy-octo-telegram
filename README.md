@@ -23,3 +23,4 @@ of `vets-app`
 # The wiki
 The technical documentation has moved to 
 [the wiki](https://github.com/w3s7y/fluffy-octo-telegram/wiki).
+newline
