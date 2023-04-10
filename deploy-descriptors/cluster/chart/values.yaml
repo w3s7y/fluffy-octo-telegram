@@ -1,10 +1,13 @@
 ---
 internal_domain_name: vets.internal
 project_description: 'Top level argocd project to contain all the tooling deployed to the cluster.'
+
+# Here are all the individual argocd applications that form the cluster-services AppProject.
+# We are basically just pulling in charts from various sources and modifying the deployment
+# as necessary.
 argo_apps:
-- prometheus_stack:
-  name: prometheus-stack
-  version: 45.1.0
+- name: prometheus-stack
+  version: 45.8.1
   chart: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
   namespace: monitoring
@@ -12,6 +15,7 @@ argo_apps:
   - CreateNamespace=true
   - Prune=true
   - Replace=false
+  # This is a massive chart, so big it fails if you try to install it in the default client-side apply mode.
   - ServerSideApply=true
   helm_values:
     alertmanager:
@@ -38,8 +42,8 @@ argo_apps:
         - prometheus.vets.internal
         paths:
         - '/'
-- argo_workflows:
-  name: argo-workflows
+
+- name: argo-workflows
   version: 0.22.11
   chart: argo-workflows
   repo: https://argoproj.github.io/argo-helm
@@ -62,8 +66,8 @@ argo_apps:
         enabled: true
         hosts:
         - 'workflows.vets.internal'
-- argo_events:
-  name: argo-events
+
+- name: argo-events
   version: 2.1.2
   chart: argo-events
   repo: https://argoproj.github.io/argo-helm
@@ -71,8 +75,8 @@ argo_apps:
   sync_options:
   - CreateNamespace=true
   - Prune=true
-- vault:
-  name: vault
+
+- name: vault
   version: 0.23.0
   chart: vault
   repo: https://helm.releases.hashicorp.com
@@ -90,8 +94,8 @@ argo_apps:
           paths: []
     injector:
       enabled: true
-- kafka:
-  name: kafka
+
+- name: kafka
   version: 20.0.6
   chart: kafka
   repo: https://charts.bitnami.com/bitnami
@@ -99,8 +103,8 @@ argo_apps:
   sync_options:
   - CreateNamespace=true
   - Prune=true
-- openldap:
-  name: openldap
+
+- name: openldap
   version: 4.1.0
   chart: openldap-stack-ha
   repo: https://jp-gouin.github.io/helm-openldap
@@ -122,8 +126,8 @@ argo_apps:
         path: /
         hosts:
         - reset.vets.internal
-- redis:
-  name: redis
+
+- name: redis
   version: 17.8.5
   chart: redis
   repo: https://charts.bitnami.com/bitnami
@@ -135,6 +139,10 @@ argo_apps:
   helm_values:
     auth:
       enabled: false
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
 
 
 # Some custom hand-rolled ingress objects

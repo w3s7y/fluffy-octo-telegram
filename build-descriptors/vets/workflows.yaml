@@ -1,11 +1,29 @@
 ---
+# If you wanted sickness inducing yaml, you came to the right place!
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: vets-ci-
   name: vets-ci
 spec:
+  # Point to a template to use as the entrypoint for the whole pipeline.
   entrypoint: vets-ci-workflow
+
+  # Top level variables for the pipeline
+  # Mostly used to globally define image versions used in the pipeline
+  # Also used to define the git ref to use for the build.
+  arguments:
+    parameters:
+      - name: python-image
+        value: "python:3.9-alpine3.17"
+      - name: git-image
+        value: "alpine/git:2.36.3"
+      - name: terraform-image
+        value: "hashicorp/terraform:1.4.4"
+      - name: git-ref
+        value: "10-final-push-for-this-ticket"
+
+  # Claim some storage to pass around the build steps
   volumeClaimTemplates:
   - metadata:
       name: workdir
@@ -16,35 +34,54 @@ spec:
           storage: 1Gi
 
   templates:
-  # The entrypoint template
+  # The main entrypoint for the pipeline
   - name: vets-ci-workflow
+    inputs:
+      # Essentially just reference the top-level args so we can use them in this template.
+      parameters:
+        - name: git-ref
+        - name: python-image
+        - name: git-image
+        - name: terraform-image
     steps:
     - - name: Clone
         template: git-clone
         arguments:
           parameters:
             - name: git-ref
-              value: "master"
+              value: "{{ inputs.parameters.git-ref }}"
     - - name: Tests
         template: lint-and-test-steps
         arguments:
           parameters:
             - name: python-image
-              value: "python:3.9-alpine3.17"
+              value: "{{ inputs.parameters.python-image }}"
+            - name: terraform-image
+              value: "{{ inputs.parameters.terraform-image }}"
     - - name: Build
         template: buildkit-build
-    - - name: Notify
-        template: post-to-discord-ci-notifications-channel
         arguments:
           parameters:
-            - name: message
-              value: "Successful Build for fluffy-octo-telegram"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+            - name: tag
+              value: "{{ steps.Clone.outputs.parameters.commit-sha-short }}"
+    - - name: Release
+        template: release-steps
+        when: "{{ inputs.parameters.git-ref }} == master"
+        arguments:
+          parameters:
+            - name: last-semver
+              value: "{{ steps.Clone.outputs.parameters.latest-tag }}"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
 
   # DAG to parallel up test steps
   - name: lint-and-test-steps
     inputs:
       parameters:
         - name: python-image
+        - name: terraform-image
     dag:
       tasks:
       - name: create-venv
@@ -75,6 +112,10 @@ spec:
               value: "{{inputs.parameters.python-image}}"
       - name: terraform-fmt
         template: terraform-fmt
+        arguments:
+          parameters:
+            - name: terraform-image
+              value: "{{ inputs.parameters.terraform-image }}"
 
   # template to clone the repo and leave it in a folder for other containers.
   - name: git-clone
@@ -86,17 +127,39 @@ spec:
         path: /workdir/src
         git:
           repo: https://github.com/w3s7y/fluffy-octo-telegram.git
-          revision: "{{inputs.parameters.git-ref}}"
+          revision: "{{ inputs.parameters.git-ref }}"
     container:
       image: alpine/git:2.36.3
       command: [sh, -c]
       workingDir: /workdir/src
       args:
-      - >
-        git log -1
+        - >
+          echo $(git log -q --oneline -1 --no-expand-tabs|awk '{print $1}') > /tmp/latest-commit.txt &&
+          echo $(git tag | tail -1) > /tmp/latest-tag.txt
       volumeMounts:
       - name: workdir
         mountPath: /workdir
+    outputs:
+      parameters:
+        - name: commit-sha-short
+          valueFrom:
+            path: /tmp/latest-commit.txt
+        - name: latest-tag
+          valueFrom:
+            path: /tmp/latest-tag.txt
+
+  - name: git-tag-and-push
+    inputs:
+      parameters:
+        - name: tag
+    container:
+      image: alpine/git:2.36.3
+      command: [ sh, -c ]
+      workingDir: /workdir/src
+      args:
+        - >
+          git tag "{{ inputs.parameters.tag }}" &&
+          git push --tags
 
   # Create a blank venv in the workdir for the other containers
   - name: create-venv
@@ -190,33 +253,83 @@ spec:
         done;
 
   - name: buildkit-build
-    steps:
-      - - name: buildkit-image
-          templateRef:
-            name: buildkit
-            template: build
-          arguments:
-            parameters:
-              - name: image
-                value: "theshipyard/vets-app"
-              - name: push
-                value: "false"
+    inputs:
+      parameters:
+        - name: python-image
+        - name: tag
+        - name: image
+          value: "theshipyard/vets-app"
+        - name: push
+          value: "true"
+    dag:
+      tasks:
+      - name: buildkit-image
+        templateRef:
+          name: buildkit
+          template: build
+        arguments:
+          parameters:
+            - name: image
+              value: "{{ inputs.parameters.image }}"
+            - name: push
+              value: "{{ inputs.parameters.push }}"
+            - name: tag
+              value: "{{ inputs.parameters.tag }}"
+      - name: print-build-metadata
+        template: print-build-metadata
+        dependencies: [buildkit-image]
+        arguments:
+          parameters:
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+            - name: metadata
+              value: "{{ tasks.buildkit-image.outputs.parameters.metadata }}"
+      - name: notify
+        template: post-to-discord-ci-notifications-channel
+        dependencies: [buildkit-image]
+        arguments:
+          parameters:
+            - name: message
+              value: "Built image {{ inputs.parameters.image }}:{{ inputs.parameters.tag }} with push={{ inputs.parameters.push }}"
+            - name: title
+              value: "Build successful"
 
-  - name: terraform-fmt
+  - name: print-build-metadata
+    inputs:
+      parameters:
+        - name: python-image
+        - name: metadata
     container:
-      image: hashicorp/terraform:1.4.2
+      image: "{{inputs.parameters.python-image}}"
+      volumeMounts:
+        - name: workdir
+          mountPath: /workdir
+      workingDir: /workdir/src
+      command: [ "echo" ]
+      args:
+        - "{{ inputs.parameters.metadata }}"
+
+  # Terraform format check / basic lint
+  - name: terraform-fmt
+    inputs:
+      parameters:
+        - name: terraform-image
+    container:
+      image: "{{ inputs.parameters.terraform-image }}"
       volumeMounts:
       - name: workdir
         mountPath: /workdir
-      workingDir: /workdir/src
+      workingDir: /workdir
       command: ["sh", "-c"]
       args:
-        - "terraform fmt --check --recursive"
+        - "terraform fmt -check -recursive -diff"
 
+  # POST to discord
   - name: post-to-discord-ci-notifications-channel
     inputs:
       parameters:
         - name: message
+        - name: title
     container:
       image: appropriate/curl:latest
       command: [sh, -c]
@@ -226,9 +339,52 @@ spec:
             secretKeyRef:
               name: discord-webhook
               key: url
-      args: [
-        "curl --location --request POST \
-        --url ${DISCORD_WEBHOOK} \
-        --header 'Content-Type: application/json' \
-        --data-raw '{ \"username\": \"argo_workflow_bot\", \"content\": \"{{inputs.parameters.message}}\" }'",
-      ]
+      args:
+        - >
+          curl --location --request POST --url ${DISCORD_WEBHOOK}
+          --header 'Content-Type: application/json' --data-raw
+          '{ 
+            "username": "argo_workflow_bot", 
+            "content": "{{inputs.parameters.message}}"
+          }'
+
+  - name: get-bumped-patch-release
+    inputs:
+      parameters:
+        - name: last-semver
+        - name: python-image
+    container:
+      image: "{{ inputs.parameters.python-image }}"
+      command: ["sh", "-c"]
+      args:
+        - >
+          pip install semver &&
+          python -c << EOF
+          import semver
+          with open('/tmp/new-semver.txt', 'w') as outputhandle:
+            outputhandle.write(
+              semver.VersionInfo.parse("{{ inputs.parameters.last-semver }}").bump_patch()
+            )
+          EOF
+    outputs:
+      parameters:
+        - name: new-semver
+          valueFrom:
+            path: /tmp/new-semver.txt
+
+  # Release steps, as a DAG.
+  - name: release-steps
+    inputs:
+      parameters:
+        - name: last-semver
+        - name: python-image
+    dag:
+      tasks:
+      - name: get-bumped-patch-release
+        arguments:
+          parameters:
+            - name: last-semver
+              value: "{{ inputs.parameters.last-semver }}"
+            - name: python-image
+              value: "{{ inputs.parameters.python-image }}"
+        template: create-new-semver
