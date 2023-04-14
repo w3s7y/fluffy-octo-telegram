@@ -11,9 +11,19 @@ spec:
       app: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        vets.internal/app-name: "{{ .Release.Name }}"
+        # Tell the webhook to look at this pod.
+        vault.hashicorp.com/agent-inject: "true"
+        # The path in vault of the secrets to mount in /vault/secrets/vets-secrets
+        vault.hashicorp.com/agent-inject-secret-vets-secrets: "kv/vets/{{ .Values.environment }}"
+        # The vault role we want to use for the lookup.
+        vault.hashicorp.com/role: "vets"
       labels:
         app: {{ .Release.Name }}
     spec:
+      # This sa is used by vault to let you lookup (kubernetes auth method)
+      serviceAccountName: vets
       containers:
       - name: "{{ .Release.Name }}"
         image: "{{ .Values.vets.image.name }}:{{ .Values.vets.image.version }}"
