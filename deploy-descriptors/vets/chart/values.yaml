@@ -1,9 +1,11 @@
 ---
 root_domain: vets.internal
+environment: default
 vets:
   replicas: 1
   image:
     name: theshipyard/vets-app
+    version: 0.0.0
   port: 8000
   debug: False
 database:
