@@ -1,0 +1,24 @@
+---
+root_domain: vets.internal
+vets:
+  replicas: 1
+  image:
+    name: theshipyard/vets-app
+  port: 8000
+  debug: False
+database:
+  pgadmin:
+    enabled: false
+    sidecar:
+      image: dpage/pgadmin4
+      tag: 6.21
+    ingress:
+      uri: pgadmin
+  claim: "1Gi"
+  image:
+    name: postgres
+    version: 15.2
+  host: vets-database
+  port: 5432
+  name: dev-vets
+  user: vets-app

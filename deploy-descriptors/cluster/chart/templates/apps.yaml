@@ -7,13 +7,13 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   description: {{ .Values.project_description }}
+  # Here we define all the git & helm chart repos the app project can pull from.
   sourceRepos:
   - 'git@github.com:w3s7y/fluffy-octo-telegram.git'
   - 'https://prometheus-community.github.io/helm-charts'
   - 'https://artifacthub.github.io/helm-charts'
   - 'https://argoproj.github.io/argo-helm'
   - 'https://charts.bitnami.com/bitnami'
-  - 'https://helm.elastic.co'
   - 'https://helm.releases.hashicorp.com'
   - 'https://jp-gouin.github.io/helm-openldap'
   destinations:
@@ -62,3 +62,4 @@ spec:
     server: "https://kubernetes.default.svc"
     namespace: {{ .namespace }}
 {{- end }}
+ 
