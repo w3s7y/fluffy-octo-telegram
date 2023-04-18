@@ -75,7 +75,7 @@ spec:
       - CreateNamespace=true
   source:
     repoURL: 'https://github.com/w3s7y/fluffy-octo-telegram.git'
-    targetRevision: master
+    targetRevision: dev
     path: deploy-descriptors/vets/chart
     helm:
       releaseName: dev-vets
@@ -99,7 +99,7 @@ spec:
     - CreateNamespace=true
   source:
     repoURL: 'https://github.com/w3s7y/fluffy-octo-telegram.git'
-    targetRevision: master
+    targetRevision: main
     path: deploy-descriptors/vets/chart
     helm:
       releaseName: production-vets

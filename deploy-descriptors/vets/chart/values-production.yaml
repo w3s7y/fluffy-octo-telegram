@@ -1,21 +1,12 @@
 ---
 environment: production
-root_domain: vets.internal
 vets:
   replicas: 3
   image:
-    name: theshipyard/vets-app
     version: 0.1.2
-  port: 8000
   debug: False
 database:
   pgadmin:
     enabled: false
   claim: "5Gi"
-  image:
-    name: postgres
-    version: 15.2
-  host: vets-database
-  port: 5432
   name: production-vets
-  user: vets-app
