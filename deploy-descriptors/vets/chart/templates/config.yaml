@@ -8,14 +8,14 @@ roleRef:
   name: system:auth-delegator
 subjects:
   - kind: ServiceAccount
-    name: vets
+    name: "{{ .Values.environment }}-vets"
     namespace: "{{ .Values.environment }}-vets"
 
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vets
+  name: "{{ .Values.environment }}-vets"
 
 ---
 apiVersion: v1
