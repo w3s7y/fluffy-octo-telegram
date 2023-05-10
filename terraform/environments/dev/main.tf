@@ -10,7 +10,7 @@ terraform {
 provider "aws" {}
 
 module "network" {
-  source         = "../../modules/network"
+  source             = "../../modules/network"
   network_cidr_block = "172.0.0.0/8"
 }
 
