@@ -21,7 +21,7 @@ spec:
       - name: terraform-image
         value: "hashicorp/terraform:1.4.4"
       - name: git-ref
-        value: "10-final-push-for-this-ticket"
+        value: "dev"
 
   # Claim some storage to pass around the build steps
   volumeClaimTemplates:
@@ -60,6 +60,7 @@ spec:
               value: "{{ inputs.parameters.terraform-image }}"
     - - name: Build
         template: buildkit-build
+        when: "{{ inputs.parameters.git-ref }} != main"
         arguments:
           parameters:
             - name: python-image
@@ -68,7 +69,7 @@ spec:
               value: "{{ steps.Clone.outputs.parameters.commit-sha-short }}"
     - - name: Release
         template: release-steps
-        when: "{{ inputs.parameters.git-ref }} == master"
+        when: "{{ inputs.parameters.git-ref }} == main"
         arguments:
           parameters:
             - name: last-semver
@@ -135,7 +136,7 @@ spec:
       args:
         - >
           echo $(git log -q --oneline -1 --no-expand-tabs|awk '{print $1}') > /tmp/latest-commit.txt &&
-          echo $(git tag | tail -1) > /tmp/latest-tag.txt
+          echo $(git tag | grep "^[vV]*[0-9]*\.[0-9]*\.[0-9]*$" | sort -u | tail -1) > /tmp/latest-tag.txt
       volumeMounts:
       - name: workdir
         mountPath: /workdir

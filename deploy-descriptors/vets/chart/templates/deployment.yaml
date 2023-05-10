@@ -23,7 +23,7 @@ spec:
         app: {{ .Release.Name }}
     spec:
       # This sa is used by vault to let you lookup (kubernetes auth method)
-      serviceAccountName: dev-vets
+      serviceAccountName: "{{ .Values.environment }}-vets"
       containers:
       - name: "{{ .Release.Name }}"
         image: "{{ .Values.vets.image.name }}:{{ .Values.vets.image.version }}"
