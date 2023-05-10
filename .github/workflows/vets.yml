@@ -7,13 +7,24 @@ on:
     branches: [ "master" ]
   workflow_dispatch:  # Run from UI
 
-# Set the vars to let django to run local db/caches
 env:
-  DJANGO_CACHE: local
-  DJANGO_DATABASE: local
+  # Set the vars to let django know to run up local db/caches for testing
+  DJANGO_CACHE: "local"
+  DJANGO_DATABASE: "local"
+  DJANGO_DEBUG: "True"
+  DJANGO_SECRET_KEY: "This_horse_is_battery_only_for_staple_0123456789"
 
 jobs:
-  tests:
+  terraform-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.4.2
+      - run: terraform fmt -check -recursive
+
+  python-tests:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
