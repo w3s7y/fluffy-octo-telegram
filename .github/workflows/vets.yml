@@ -1,11 +1,8 @@
 name: Vets CI / CD Workflow
 
 on:
-  create:
   push:
-    branches: [ "feature/*", "fix/*", "dev", "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ "feature/*", "fix/*", "master" ]
   workflow_dispatch:  # Run from UI
 
 env:
