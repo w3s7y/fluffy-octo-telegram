@@ -7,6 +7,11 @@ on:
     branches: [ "master" ]
   workflow_dispatch:  # Run from UI
 
+# Set the vars to let django to run local db/caches
+env:
+  DJANGO_CACHE: local
+  DJANGO_DATABASE: local
+
 jobs:
   tests:
     runs-on: ubuntu-latest
