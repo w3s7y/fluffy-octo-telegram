@@ -51,7 +51,7 @@ jobs:
         python application/manage.py migrate
     - name: Run Tests
       run: |
-        python application/manage.py test
+        python application/manage.py test --timing -v 2
 
   docker-build:
     runs-on: ubuntu-latest
