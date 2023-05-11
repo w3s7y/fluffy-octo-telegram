@@ -7,6 +7,7 @@ RUN apk update \
 WORKDIR /usr/src/app
 COPY ./application/requirements.txt ./
 RUN pip install -r requirements.txt
+RUN pip cache purge
 COPY ./application .
 
 USER nobody
