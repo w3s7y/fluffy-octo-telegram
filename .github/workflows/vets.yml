@@ -2,7 +2,7 @@ name: Vets CI / CD Workflow
 
 on:
   release:
-    types: [released]
+    types: [published]
   push:
     branches: [ "feature/*", "fix/*", "master" ]
   workflow_dispatch:  # Run from UI
@@ -12,7 +12,7 @@ env:
   DJANGO_CACHE: "local"
   DJANGO_DATABASE: "local"
   DJANGO_DEBUG: "True"
-  DJANGO_SECRET_KEY: "This_horse_is_battery_only_for_staple_0123456789"
+  DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
 
 jobs:
   terraform-fmt:
