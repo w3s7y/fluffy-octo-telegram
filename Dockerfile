@@ -7,7 +7,13 @@ RUN apk update \
 WORKDIR /usr/src/app
 COPY ./application/requirements.txt ./
 RUN pip install -r requirements.txt
+RUN pip cache purge
 COPY ./application .
+RUN chmod 755 ./vets_bootstrap.sh
+
+# Adding this in temporarily so you can makemigrations in the container
+# Remove once 0001_inital migration is stable and committed to repo (0.3.0)
+RUN chown nobody vets/migrations
 
 USER nobody
 EXPOSE 8000
