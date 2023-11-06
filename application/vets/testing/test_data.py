@@ -5,14 +5,19 @@ class VetsTestData(object):
     """
     Just the area for the static data which are used in tests.
     """
-
-    AUTH_GROUPS = [
-        'vets',
-        'clients',
-        'receptionists',
-        'vets-admin',
-        'area-manager'
-    ]
+    # Woods are used as friendly names to identify vet surgeries
+    # We generate one surgery with a random UK address for each wood type during testing.
+    WOODS = ['Abachi', 'Acacia', 'Afzelia', 'Agba', 'Alder', 'Ash', 'Aspen', 'Ayan', 'Balsa', 'Basswood', 'Birch',
+             'Blackbean', 'Bloodwood', 'Boxelder', 'Boxwood', 'Brazilwood', 'Buckeye', 'Butternut', 'Catalpa', 'Cherry',
+             'Chestnut', 'Coachwood', 'Cocobolo', 'Corkwood', 'Cottonwood', 'Cucumbertree', 'Cumaru', 'Dogwood',
+             'Ebony',
+             'Elm', 'Eucalyptus', 'Banglay', 'Karri', 'Jarrah', 'Tallowwood', 'Blackbutt', 'Mugga', 'Redwood', 'Wandoo',
+             'Greenheart', 'Grenadilla', 'Guanandi', 'Gum', 'Hackberry', 'Hickory', 'Hornbeam', 'IpÃª', 'Iroko',
+             'Ironwood', 'Sheoak', 'Holywood', 'Takian', 'JatobÃ¡', 'Kingwood', 'Lacewood', 'Limba', 'Mahogany',
+             'Sapele', 'Sipo', 'Tiama', 'Kosipo', 'Carapa', 'Bead-tree', 'Maple', 'Marblewood', 'Marri', 'Meranti',
+             'Merbau', 'Mesquite', 'Mopane', 'Oak', 'OkoumÃ©', 'Olive', 'Poplar', 'Purpleheart', 'Ramin', 'Redheart',
+             'Sal', 'Sweetgum', 'Sandalwood', 'Sassafras', 'SatinÃ©', 'Sourwood', 'Spanish-cedar', 'Tamboti', 'Teak',
+             'Tupelo', 'Turpentine', 'Walnut', 'Wenge', 'Willow', 'Zingana']
 
     SURGERIES = [
         {
@@ -92,6 +97,44 @@ class VetsTestData(object):
             "post_code": "M1 4FR",
             "org_area": Address.GM
         }
+    ]
+
+    ADDRESS_PREFIXES = [
+        'New',
+        'Highbury',
+        'Darlington',
+        'Curie',
+        'Fuller',
+        'Mason',
+        'Garner',
+        'Castle',
+        'Market',
+        'Back'
+    ]
+
+    ADDRESS_SUFFIXES = [
+        'Street',
+        'Close',
+        'Avenue',
+        'Terrace',
+        'Lane',
+        'Crescent'
+    ]
+
+    TOWNS = [
+        'Shrewsbury', 'Wem', 'Prees', 'Baschurch', 'Hadnall',
+        'Chester', 'Frodsham', 'Tarporley', 'Waverton', 'Eaton', 'Northwich',
+        'Salford', 'Failsworth', 'Withington', 'Stockport', 'Droylsden'
+
+    ]
+
+    # Django groups to create during testing
+    AUTH_GROUPS = [
+        'vets',
+        'clients',
+        'receptionists',
+        'vets-admin',
+        'area-manager'
     ]
 
     VETS = [

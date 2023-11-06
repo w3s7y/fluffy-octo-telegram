@@ -4,3 +4,5 @@
 **/local-cluster
 **/__pycache__
 application/vets/migrations
+**/.venv
+poetry.lock
