@@ -19,7 +19,7 @@ rest_router.register(r'pets', views.PetViewSet)
 urlpatterns = [
     path('', include('vets.views.urls')),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls)     # Django site admin
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
