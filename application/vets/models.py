@@ -1,5 +1,10 @@
+from django.contrib.admin import ModelAdmin
 from django.db import models
 from django.contrib.auth.models import User
+
+
+class AddressAdmin(ModelAdmin):
+    list_display = ('address_line_1', 'org_area')
 
 
 class Address(models.Model):
@@ -21,6 +26,12 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.address_line_1} - {self.address_line_2} - " \
                f"{self.post_code} - {self.org_area}"
+
+    def __eq__(self, other):
+        if self.address_line_1 == other.address_line_1:
+            if self.post_code == other.post_code:
+                return True
+        return False
 
 
 class Surgery(models.Model):

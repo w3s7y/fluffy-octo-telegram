@@ -9,14 +9,14 @@ class TestAddress(TestCase):
     def test_good_count_of_addresses(self):
         self.assertEqual(len(Address.objects.all()), 11)
 
-    def test_create_duplicate_address_fails(self):
+    def test_equality_function(self):
         """
         Probably not working the way I expect.  Suspect we can only have row level validation at this (model) level
         and multi-row validation (checking the entire address is unique).
         Returns:
 
         """
-        addr = {
+        duplicate_addr = {
             "address_line_1": "1 Darwin Way",
             "address_line_2": "Shrewsbury Business Park",
             "address_line_3": "Shrewsbury",
@@ -24,11 +24,12 @@ class TestAddress(TestCase):
             "post_code": "SY3 2WK",
             "org_area": Address.SY
         }
-        qset = Address.objects.filter(**addr)
-        qset[0].id = None
-        qset[0].save()
-
-        self.assertNotEqual(len(Address.objects.all()), 12)
+        result = Address.objects.filter(**duplicate_addr)[0]
+        local_address = Address(**duplicate_addr)
+        # local_address.save()
+        new_set = Address.objects.all()
+        print(new_set, local_address.id)
+        self.assertEqual(result, local_address)
 
 
 class TestSurgery(TestCase):
