@@ -6,3 +6,4 @@
 application/vets/migrations
 **/.venv
 poetry.lock
+dist/
