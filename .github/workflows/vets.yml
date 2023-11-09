@@ -48,9 +48,8 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Poetry install
         run: poetry install
-      - name: Make migrations and run tests
+      - name: Run migrations and tests
         run: |
-          poetry run python application/manage.py makemigrations
           poetry run python application/manage.py migrate
           poetry run python application/manage.py test --timing -v 2
       - name: Build wheel

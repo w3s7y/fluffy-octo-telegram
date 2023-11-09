@@ -3,7 +3,6 @@
 **/*.sqlite3
 **/local-cluster
 **/__pycache__
-application/vets/migrations
 **/.venv
 poetry.lock
 dist/
