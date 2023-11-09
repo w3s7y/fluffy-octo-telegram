@@ -12,6 +12,7 @@ packages = [
 
 [tool.poetry.scripts]
 vets-app-manage = "src.manage:main"
+mkdocs-cli = "mkdocs.__main__:cli"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -24,7 +25,6 @@ redis = "^5.0.1"
 hiredis = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
-mkdocs = "^1.5.3"
 mkdocs-material = "^9.4.8"
 
 [build-system]
