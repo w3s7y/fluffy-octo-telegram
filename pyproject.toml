@@ -6,8 +6,12 @@ authors = ["Benjamin West <ben.west.500@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [
-    {include = "application"},
+    {include="djangorestapi", from="src"},
+    {include="vets", from="src"}
 ]
+
+[tool.poetry.scripts]
+vets-app-manage = "src.manage:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -21,7 +25,7 @@ hiredis = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.5.3"
-mkdocs-material = "^9.4.7"
+mkdocs-material = "^9.4.8"
 
 [build-system]
 requires = ["poetry-core"]

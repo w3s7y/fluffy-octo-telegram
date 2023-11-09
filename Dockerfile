@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 
 COPY ./fluffy_octo_telegram-* .
 RUN pip install fluffy_octo_telegram-*
-COPY application/vets_bootstrap.sh .
+COPY src/vets_bootstrap.sh .
 RUN chmod 755 ./vets_bootstrap.sh
 
 USER nobody
