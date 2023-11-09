@@ -17,6 +17,5 @@ models for a `client`, a `vet`, a `pet`, `appointment` and so on.
 [On Dockerhub](https://hub.docker.com/repository/docker/theshipyard/vets-app/general) 
 you will find the released versions of `vets-app`.  
 
-# The documentation
-All the documentation has recently moved out of github wiki and into `docs/` and is a `mkdocs-material` based site:
-[The Documentation](https://w3s7y.github.io/fluffy-octo-telegram/).
+# Documentation
+[All the documentation](https://w3s7y.github.io/fluffy-octo-telegram/) has recently moved!

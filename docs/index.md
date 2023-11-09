@@ -1,25 +1,43 @@
-Welcome to the documentation for `fluffy-octo-telegram`. 
+# Vets
+Welcome to the documentation for `fluffy-octo-telegram` (or the "Vets" application).
 
-If you have no idea what it is, head over to the [Architecture](architecture/index.md) section which details what the actual 
-application "looks like" and its functionality.  It is also where most of the design wireframes, mockups etc. are.
+For what it is, head over to the [Architecture](architecture/index.md) section which details what the 
+application "looks like" and its core functionality.  It is also where the design wireframes, mockups etc. are.
 
-# Architecture diagram
-At the highest level, this is what this repo contains / builds: 
+## Running the project
+There are a couple of ways to run the project, the suitability of each is dependent on individuals current dev setups 
+etc. 
 
-![Kubernetes cluster architecture miro export dated 20230319](assets/images/architecture_20230319.jpg)
+### Method 1: Quick and dirty - using python and poetry 
+If you already have python and poetry installed you can just clone the repo, migrate the database and start the 
+application:
+```shell
+# Set some env vars for running app locally.
+export DJANGO_CACHE=local
+export DJANGO_SECRET_KEY=some_long_random_string_0123456789
+export DJANGO_DATABASE=local
+export DJANGO_DEBUG=True
 
+# Clone repo and cd into dir. 
+git clone https://github.com/w3s7y/fluffy-octo-telegram.git
+cd fluffy-octo-telegram
 
-# Running the project locally
-You can clone the project as usual and then take a run through the [Minikube](Minikube) page which will get
-you a cluster off the ground, then the [Testing](Testing) page which is the overall testing runbook for the project.
+# Install python dependencies, migrate db and run local server (http://localhost:8000/vets/admin). 
+poetry install
+poetry run vets-app-manage migrate
+poetry run vets-app-manage createsuperuser
+poetry run vets-app-manage runserver
+```
 
-# Local dev setup
-Go over to the [Development](development/index.md) section to get setup. 
+### Method 2: Complete development setup
+If you don't already have a development environment for python you will probably want to setup a new one with all
+the bells and whistles, head over to the [Development](development/setup.md) section to get setup. 
 
-# The kanban board
-App feature ideas, infra ideas / issues all over [here](https://github.com/users/w3s7y/projects/2/views/1)
+## The kanban board
+The project in-flight status, milestones etc. are all over on github projects: 
+[here](https://github.com/users/w3s7y/projects/2/views/1)
 
-# Links
+## Links
 *note: only work if you have setup the local k8s environment*
 
 * [vets dev environment](https://dev.vets.internal/vets/auth/login/?next=/vets/admin)
@@ -31,7 +49,7 @@ App feature ideas, infra ideas / issues all over [here](https://github.com/users
 * [ldap server console](https://admin.vets.internal)
 * [ldap server password reset tool](https://reset.vets.internal)
 
-## Links to documentation
+### Links to documentation
 * [Django core documentation](https://docs.djangoproject.com/)
 * [Django rest_framework](https://www.django-rest-framework.org/)
 * [minikube](https://minikube.sigs.k8s.io/docs)

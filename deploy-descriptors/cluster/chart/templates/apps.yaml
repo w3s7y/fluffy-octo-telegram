@@ -16,6 +16,7 @@ spec:
   - 'https://charts.bitnami.com/bitnami'
   - 'https://helm.releases.hashicorp.com'
   - 'https://jp-gouin.github.io/helm-openldap'
+  - 'https://grafana.github.io/helm-charts'
   destinations:
   - namespace: '*'
     server: https://kubernetes.default.svc
