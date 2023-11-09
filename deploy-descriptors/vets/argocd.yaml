@@ -12,7 +12,7 @@ spec:
   # Allow manifests to deploy from any Git repos
   sourceRepos:
   - 'https://github.com/w3s7y/fluffy-octo-telegram.git'
-  # Only permit applications to deploy to the guestbook namespace in the same cluster
+  # Only permit applications to deploy to the vets namespaces in the same cluster
   destinations:
   - namespace: '*-vets'
     server: https://kubernetes.default.svc
@@ -82,7 +82,7 @@ spec:
       - CreateNamespace=true
   source:
     repoURL: 'https://github.com/w3s7y/fluffy-octo-telegram.git'
-    targetRevision: dev
+    targetRevision: master
     path: deploy-descriptors/vets/chart
     helm:
       releaseName: dev-vets
@@ -106,7 +106,7 @@ spec:
     - CreateNamespace=true
   source:
     repoURL: 'https://github.com/w3s7y/fluffy-octo-telegram.git'
-    targetRevision: main
+    targetRevision: 0.2.3
     path: deploy-descriptors/vets/chart
     helm:
       releaseName: production-vets

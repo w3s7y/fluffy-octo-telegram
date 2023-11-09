@@ -6,6 +6,26 @@ project_description: 'Top level argocd project to contain all the tooling deploy
 # We are basically just pulling in charts from various sources and modifying the deployment
 # as necessary.
 argo_apps:
+- name: loki-stack
+  version: 5.36.3
+  chart: loki
+  repo: https://grafana.github.io/helm-charts
+  namespace: logging
+  sync_options:
+    - CreateNamespace=true
+    - Prune=true
+    - Replace=false
+    - ServerSideApply=true
+  helm_values:
+    ingress:
+      enabled: true
+      hosts:
+        - loki.vets.internal
+        - localhost
+    write:
+      replicas: 1
+    read:
+      replicas: 1
 - name: prometheus-stack
   version: 45.10.1
   chart: kube-prometheus-stack

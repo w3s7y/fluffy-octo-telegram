@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ.get("DJANGO_DEBUG", False) == "True":
@@ -85,8 +85,10 @@ CACHES = {
     'redis': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
         'LOCATION': [
-            'redis://redis-master.redis.svc.cluster.local:6379',
-            'redis://redis-replicas.redis.svc.cluster.local:6379'
+            f"redis://{os.environ.get('REDIS_MASTER', 'redis-master.redis.svc.cluster.local')}:"
+            f"{os.environ.get('REDIS_PORT', '6379')}",
+            f"redis://{os.environ.get('REDIS_REPLICAS', 'redis-replicas.redis.svc.cluster.local')}:"
+            f"{os.environ.get('REDIS_PORT', '6379')}"
         ]
     },
     'local': {
