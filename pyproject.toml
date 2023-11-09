@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "fluffy-octo-telegram"
-version = "0.2.1"
+version = "0.2.3"
 description = "Vets application"
 authors = ["Benjamin West <ben.west.500@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [
-    {include = "application/vets"},
-    {include = "application/djangorestapi"},
+    {include = "application"},
 ]
 
 [tool.poetry.dependencies]
