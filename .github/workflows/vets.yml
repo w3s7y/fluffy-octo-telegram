@@ -50,8 +50,8 @@ jobs:
         run: poetry install
       - name: Run migrations and tests
         run: |
-          poetry run python application/manage.py migrate
-          poetry run python application/manage.py test --timing -v 2
+          poetry run vets-app-manage migrate
+          poetry run vets-app-manage --timing -v 2
       - name: Test documentation build
         run: poetry run mkdocs build
       - name: Build wheel
