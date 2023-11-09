@@ -66,6 +66,10 @@ jobs:
     needs: poetry-test-and-build
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: built-wheel
+      - uses:
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -85,6 +89,9 @@ jobs:
     if: github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: built-wheel
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}

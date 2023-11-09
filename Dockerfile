@@ -5,10 +5,10 @@ RUN apk update \
 	&& apk add postgresql-client
 
 WORKDIR /usr/src/app
-COPY ./application/requirements.txt ./
-RUN pip install -r requirements.txt
-RUN pip cache purge
-COPY ./application .
+
+COPY ./fluffy_octo_telegram-* .
+RUN pip install fluffy_octo_telegram-*
+COPY application/vets_bootstrap.sh .
 RUN chmod 755 ./vets_bootstrap.sh
 
 # Adding this in temporarily so you can makemigrations in the container
