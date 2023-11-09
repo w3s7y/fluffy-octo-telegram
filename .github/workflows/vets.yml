@@ -51,9 +51,9 @@ jobs:
       - name: Run migrations and tests
         run: |
           poetry run vets-app-manage migrate
-          poetry run vets-app-manage --timing -v 2
+          poetry run vets-app-manage test --timing -v 2
       - name: Test documentation build
-        run: poetry run mkdocs build
+        run: poetry run mkdocs-cli build
       - name: Build wheel
         run: poetry build
       - name: Archive wheel
@@ -116,7 +116,6 @@ jobs:
         name: Deploy docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
   lint-and-template-vets-charts:
     runs-on: ubuntu-latest
