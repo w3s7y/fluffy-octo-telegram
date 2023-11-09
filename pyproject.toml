@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "fluffy-octo-telegram"
+version = "0.2.3"
+description = "Vets application"
+authors = ["Benjamin West <ben.west.500@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    {include = "application"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^4.2.7"
+djangorestframework = "^3.14.0"
+pygments = "^2.16.1"
+kafka = "^1.3.5"
+psycopg2-binary = "^2.9.9"
+redis = "^5.0.1"
+hiredis = "^2.2.3"
+
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.5.3"
+mkdocs-material = "^9.4.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

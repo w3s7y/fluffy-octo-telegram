@@ -14,8 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import include, path
-from rest_framework import routers
 
+# Just include the urls.py from the vets app itself.  The main url binds done over there.
 urlpatterns = [
     path('vets/', include('vets.urls'))
 ]

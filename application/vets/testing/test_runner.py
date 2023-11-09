@@ -1,3 +1,8 @@
+# stdlib imports
+import random
+import string
+
+# django / internal imports
 from django.test.runner import DiscoverRunner
 from vets.models import *
 import vets.testing.test_data as td
@@ -11,7 +16,7 @@ class VetsTestRunner(DiscoverRunner):
     def setup_databases(self, **kwargs):
         """
         Create an admin user and inject some test data to
-        the DB before TestCases fire up.
+        the DB before any TestCases fire up.
         :param kwargs:
         :return:
         """
@@ -29,29 +34,38 @@ class VetsTestRunner(DiscoverRunner):
             address = Address.objects.create(**surgery)
             Surgery.objects.create(**surg_to_make, address=address)
 
+        client_group = Group.objects.filter(name='clients')
         for client in td.VetsTestData.CLIENTS:
             usern = client.pop("client_username")
             surgery = client.pop("registered_surgery")
             address = Address.objects.create(**client)
-            Client.objects.create_user(
+            client_obj = Client(
                 username=usern,
                 email=f"{usern}@vets.internal",
                 home_address=address,
                 registered_surgery=Surgery.objects.get(name=surgery)
             )
+            client_obj.save()
+            client_obj.groups.set(Group.objects.filter(name='clients'))
+            client_obj.is_staff = False
+            client_obj.save()
 
         for vet in td.VetsTestData.VETS:
             vet_username = vet.pop("vet_username")
             base = vet.pop("base_surgery")
             salary = vet.pop("salary")
             address = Address.objects.create(**vet)
-            Vet.objects.create_user(
+            vet_obj = Vet(
                 username=vet_username,
                 email=f"{vet_username}@vets.internal",
                 base_surgery=Surgery.objects.get(name=base),
                 home_address=address,
                 salary=salary
             )
+            vet_obj.save()
+            vet_obj.groups.set(Group.objects.filter(name='vets'))
+            vet_obj.is_staff = True
+            vet_obj.save()
 
         for pet in td.VetsTestData.PETS:
             owner = Client.objects.get(username=pet.pop("owner"))
@@ -66,3 +80,20 @@ class VetsTestRunner(DiscoverRunner):
                 vet=vet, pet=pet, client=cli, details=appt.pop("details"),
                 surgery=cli.registered_surgery)
         return super_init
+
+    @staticmethod
+    def get_random_address() -> Address:
+        new_addr = Address()
+        new_addr.address_line_1 = f"{random.randint(1,200)} {random.choice(td.VetsTestData.ADDRESS_PREFIXES)} " \
+                                  f"{random.choice(td.VetsTestData.ADDRESS_SUFFIXES)}"
+        new_addr.address_line_2 = random.choice(td.VetsTestData.TOWNS)
+        new_addr.post_code = f"{random.choice(string.ascii_uppercase)}{random.choice(string.ascii_uppercase)}" \
+                             f"{random.randint(1, 9)} {random.randint(1, 9)}{random.choice(string.ascii_uppercase)}" \
+                             f"{random.choice(string.ascii_uppercase)}"
+        if new_addr.address_line_2 in ['Shrewsbury', 'Wem', 'Prees', 'Baschurch', 'Hadnall']:
+            new_addr.org_area = Address.SY
+        elif new_addr.address_line_2 in ['Chester', 'Frodsham', 'Tarporley', 'Waverton', 'Eaton', 'Northwich']:
+            new_addr.org_area = Address.CH
+        elif new_addr.address_line_2 in ['Salford', 'Failsworth', 'Withington', 'Stockport', 'Droylsden']:
+            new_addr.org_area = Address.GM
+        return new_addr

@@ -1,5 +1,10 @@
+from django.contrib.admin import ModelAdmin
 from django.db import models
 from django.contrib.auth.models import User
+
+
+class AddressAdmin(ModelAdmin):
+    list_display = ('address_line_1', 'org_area')
 
 
 class Address(models.Model):
@@ -21,6 +26,12 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.address_line_1} - {self.address_line_2} - " \
                f"{self.post_code} - {self.org_area}"
+
+    def __eq__(self, other):
+        if self.address_line_1 == other.address_line_1:
+            if self.post_code == other.post_code:
+                return True
+        return False
 
 
 class Surgery(models.Model):
@@ -51,7 +62,7 @@ class Vet(Human):
                                      null=False)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.username} - {self.base_surgery.name}"
 
 
 class Client(Human):
@@ -60,8 +71,7 @@ class Client(Human):
                                            null=False)
 
     def __str__(self):
-        return f"{self.first_name} {self.middle_names} " \
-               f"{self.last_name} - {self.home_address.post_code}"
+        return f"{self.username} - {self.email} - {self.home_address.post_code}"
 
 
 class Pet(models.Model):
@@ -78,7 +88,7 @@ class Pet(models.Model):
     species = models.CharField(max_length=200, blank=False,
                                choices=SPECIES_CHOICES, null=False)
     dob = models.DateTimeField(blank=False, null=False)
-    dod = models.DateTimeField(null=True)
+    dod = models.DateTimeField(null=True, blank=True)
     chip_id = models.BigIntegerField(null=True)
     owner = models.ForeignKey('Client', on_delete=models.CASCADE, null=False)
 
@@ -95,6 +105,7 @@ class Appointment(models.Model):
                                null=False)
     pet = models.ForeignKey('Pet', on_delete=models.CASCADE, null=False)
     details = models.TextField(default="Nature of Appointment: ")
+    outcome = models.TextField(default="Outcomes / Future Treatments: ")
 
     def __str__(self):
         return f"{self.surgery} - {self.vet} - " \

@@ -1,18 +1,35 @@
-from django.test import TestCase
-from vets.models import Surgery
-from vets.models import Pet
-from vets.models import Vet
-from vets.models import Appointment
-from vets.models import Client
-from vets.models import Address
+from unittest import TestCase
+from vets.models import *
 
 
 class TestAddress(TestCase):
     def test_address_data_loaded_from_runner(self):
-        self.assertTrue(Address.objects.filter())
+        self.assertTrue(Address.objects.all())
 
     def test_good_count_of_addresses(self):
-        self.assertEqual(len(Address.objects.filter()), 11)
+        self.assertEqual(len(Address.objects.all()), 11)
+
+    def test_equality_function(self):
+        """
+        Probably not working the way I expect.  Suspect we can only have row level validation at this (model) level
+        and multi-row validation (checking the entire address is unique).
+        Returns:
+
+        """
+        duplicate_addr = {
+            "address_line_1": "1 Darwin Way",
+            "address_line_2": "Shrewsbury Business Park",
+            "address_line_3": "Shrewsbury",
+            "address_line_4": "",
+            "post_code": "SY3 2WK",
+            "org_area": Address.SY
+        }
+        result = Address.objects.filter(**duplicate_addr)[0]
+        local_address = Address(**duplicate_addr)
+        # local_address.save()
+        new_set = Address.objects.all()
+        print(new_set, local_address.id)
+        self.assertEqual(result, local_address)
 
 
 class TestSurgery(TestCase):

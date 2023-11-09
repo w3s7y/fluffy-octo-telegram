@@ -1,28 +1,27 @@
-from rest_framework import mixins, generics, permissions
+from rest_framework import mixins, generics, permissions, viewsets
 from vets import models
 from vets import serializers
 
 
-class ClientList(mixins.ListModelMixin,
-                 mixins.CreateModelMixin,
-                 generics.GenericAPIView):
+class ClientViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.ClientSerializer
+    queryset = models.Client.objects.all()
+    permission_classes = [permissions.IsAdminUser]
 
+
+class ClientList(mixins.ListModelMixin,
+                 generics.GenericAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
 
 class ClientDetail(mixins.UpdateModelMixin,
                    mixins.RetrieveModelMixin,
-                   mixins.DestroyModelMixin,
                    generics.GenericAPIView):
-
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -33,13 +32,14 @@ class ClientDetail(mixins.UpdateModelMixin,
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+
+class VetViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.VetSerializer
+    queryset = models.Vet.objects.all()
+    permission_classes = [permissions.IsAdminUser]
 
 
-class VetList(mixins.ListModelMixin, mixins.CreateModelMixin,
-              generics.GenericAPIView):
-
+class VetList(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = models.Vet.objects.all()
     serializer_class = serializers.VetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -47,12 +47,9 @@ class VetList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
-
-class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                mixins.DestroyModelMixin, generics.GenericAPIView):
+class VetDetail(mixins.RetrieveModelMixin,
+                generics.GenericAPIView):
     queryset = models.Vet.objects.all()
     serializer_class = serializers.VetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -60,16 +57,15 @@ class VetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+class PetViewSet(viewsets.ModelViewSet):
+    queryset = models.Pet.objects.all()
+    serializer_class = serializers.PetSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
-class PetList(mixins.ListModelMixin, mixins.CreateModelMixin,
+class PetList(mixins.ListModelMixin,
               generics.GenericAPIView):
-
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -77,13 +73,9 @@ class PetList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
-
-class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                mixins.DestroyModelMixin, generics.GenericAPIView):
-
+class PetDetail(mixins.RetrieveModelMixin,
+                generics.GenericAPIView):
     queryset = models.Pet.objects.all()
     serializer_class = serializers.PetSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -91,15 +83,14 @@ class PetDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+class AppointmentViewSet(viewsets.ModelViewSet):
+    queryset = models.Appointment.objects.all()
+    serializer_class = serializers.AppointmentSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
-class AppointmentList(mixins.ListModelMixin, mixins.CreateModelMixin,
-                      generics.GenericAPIView):
+class AppointmentList(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = models.Appointment.objects.all()
     serializer_class = serializers.AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -107,13 +98,8 @@ class AppointmentList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
-
-class AppointmentDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                        mixins.DestroyModelMixin,
-                        generics.GenericAPIView):
+class AppointmentDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
     queryset = models.Appointment.objects.all()
     serializer_class = serializers.AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -121,11 +107,11 @@ class AppointmentDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+class AddressViewSet(viewsets.ModelViewSet):
+    queryset = models.Address.objects.all()
+    serializer_class = serializers.AddressSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
 class AddressList(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -137,13 +123,8 @@ class AddressList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
-
-class AddressDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    generics.GenericAPIView):
+class AddressDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
     queryset = models.Address.objects.all()
     serializer_class = serializers.AddressSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -151,15 +132,14 @@ class AddressDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+class SurgeryViewSet(viewsets.ModelViewSet):
+    queryset = models.Surgery.objects.all()
+    serializer_class = serializers.SurgerySerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
-class SurgeryList(mixins.ListModelMixin, mixins.CreateModelMixin,
-                  generics.GenericAPIView):
+class SurgeryList(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = models.Surgery.objects.all()
     serializer_class = serializers.SurgerySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -167,22 +147,11 @@ class SurgeryList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
-
-class SurgeryDetail(mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    generics.GenericAPIView):
+class SurgeryDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
     queryset = models.Surgery.objects.all()
     serializer_class = serializers.SurgerySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
