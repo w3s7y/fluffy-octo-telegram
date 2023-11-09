@@ -75,7 +75,9 @@ jobs:
         run: poetry build
       - name: Archive wheel
         uses: actions/upload-artifact@v3
-        path: dist/*.whl
+        with:
+          name: built-wheel
+          path: dist/*.whl
 
   docker-build:
     runs-on: ubuntu-latest
