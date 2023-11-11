@@ -1,6 +1,10 @@
+import logging
+
 from rest_framework import mixins, generics, permissions, viewsets
 from vets import models
 from vets import serializers
+
+logger = logging.getLogger(__name__)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -30,6 +34,7 @@ class ClientDetail(mixins.UpdateModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        logger.debug(f"Writing {kwargs} to Clients")
         return self.update(request, *args, **kwargs)
 
 

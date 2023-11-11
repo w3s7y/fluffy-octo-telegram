@@ -3,7 +3,7 @@ environment: dev
 vets:
   replicas: 1
   image:
-    version: 0.1.2
+    version: 0.2.3
   port: 8000
   debug: True
 database:

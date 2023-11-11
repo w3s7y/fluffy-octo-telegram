@@ -16,7 +16,7 @@ This list assumes you already have basic tools like git etc. installed!
 |-----------------------------------------------|-------------------------------------------------------------|
 | [Python 3](https://python.org)                | Currently project uses `3.11`, ensure pip is installed too! |
 | [Rancher Desktop](https://rancherdesktop.io/) | The main development / local run platform (k3s)             |
-| [Helm]()                                      | For deploying things to k8s directly from your machine.     |
+| [Helm](https://helm.sh/)                      | For deploying things to k8s directly from your machine.     |
 | [Terrform](https://www.terraform.io/)         | For building / bootstrapping resources (k8s cluster) in aws |
 | [Sqlite3](https://www.sqlite.org/index.html)  | For looking in the local database file after tests etc.     | 
 
@@ -76,11 +76,17 @@ running: `kubectl get pods -n argocd`.
 
 ### Deploy remaining cluster services
 ```shell
-helm install cluster-services deploy-descriptors/cluster/chart --namespace argocd
+helm upgrade -i cluster-services deploy-descriptors/cluster/chart --namespace argocd
 ```
+This takes an age (it is deploying approx 10 namespaces and the entire backend stack for the app) so let it whirl for
+5-10 mins while it all comes online. 
+
+### Initialise the local vault instance
+Now the cluster services are running in the cluster this includes hashicorp vault.  We can hit the UI and get 
+it configured. 
 
 ### Creation of app secrets
-Manually for now
+This is done manually for now:
 ```shell
 kubectl create ns dev-vets
 kubectl create secret generic vets-app -n dev-vets \
@@ -92,8 +98,11 @@ Repeat for namespace `production-vets` as well.
 This will be moved to a vault implementation of secrets soon.
 
 ### Deploy vets 
+You can head over to the [Operations](../operations/index.md) section if you want to deploy the apps via argo.  
+
+Here we can just use helm to get it deployed:
 ```shell
-kubectl apply -n argocd -f deploy-descriptors/vets/argocd.yaml
+helm upgrade -i dev-vets deploy-descriptors/vets/chart -n dev-vets
 ```
 
 ## Validating everything is working
@@ -101,12 +110,11 @@ kubectl apply -n argocd -f deploy-descriptors/vets/argocd.yaml
 ### Testing local python running
 ```shell
 poetry run vets-app-manage migrate
-poetry run vets-app-manage test --keepdb
-poetry run vets-app-manage runserver
+poetry run vets-app-manage test
 ```
 
-### Testing on k8s 
+### Testing pods up on k8s 
 ```shell
 kubectl get pods -n dev-vets
+# Should return some running pods (a database pod and an app pod). 
 ```
-

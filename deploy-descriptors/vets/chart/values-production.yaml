@@ -3,7 +3,7 @@ environment: production
 vets:
   replicas: 3
   image:
-    version: 0.1.2
+    version: 0.2.3
   debug: False
 database:
   pgadmin:

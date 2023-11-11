@@ -2,7 +2,9 @@ site_name: Vets Application Docs
 site_url: https://w3s7y.github.io/fluffy-octo-telegram/
 site_author: Ben West
 repo_name: w3s7y/fluffy-octo-telegram
-repo_url: https://github.com/w3s7y/fluffy-octo-telegram
+repo_url: https://github.com/w3s7y/fluffy-octo-telegram/
+
+# Add cookie consent form
 extra:
   consent:
     title: Cookie consent
@@ -13,10 +15,13 @@ extra:
       make our documentation better.
     actions:
       - accept
-      - manage
       - reject
+      - manage
+
+# Main material config block
 theme:
   name: material
+  custom_dir: docs/overrides
   features:
     - announce.dismiss
     - content.action.edit
@@ -50,13 +55,13 @@ theme:
       accent: indigo
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
-    - scheme: default
+        name: Switch to dark mode
+    - scheme: slate
       primary: black
       accent: indigo
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
