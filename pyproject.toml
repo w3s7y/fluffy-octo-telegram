@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fluffy-octo-telegram"
-version = "0.2.3"
+version = "0.2.4"
 description = "Vets application"
 authors = ["Benjamin West <ben.west.500@gmail.com>"]
 license = "MIT"
@@ -24,7 +24,7 @@ psycopg2-binary = "^2.9.9"
 redis = "^5.0.1"
 hiredis = "^2.2.3"
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.4.8"
 
 [build-system]

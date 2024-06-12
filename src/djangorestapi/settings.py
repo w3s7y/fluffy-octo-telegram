@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'djangorestapi.wsgi.application'
 
 CACHES = {
     'redis': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'BACKEND': 'django.reactor.cache.backends.redis.RedisCache',
         'LOCATION': [
             f"redis://{os.environ.get('REDIS_MASTER', 'redis-master.redis.svc.cluster.local')}:"
             f"{os.environ.get('REDIS_PORT', '6379')}",
@@ -92,7 +92,7 @@ CACHES = {
         ]
     },
     'local': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'BACKEND': 'django.reactor.cache.backends.db.DatabaseCache',
         'LOCATION': 'vets_cache',
     }
 }
@@ -162,7 +162,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
+# Default primary_loop key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

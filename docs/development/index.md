@@ -1,4 +1,4 @@
-# Development
+ # Development
 
 The following intends to act as a quick reference handbook for developing vets. 
 
@@ -55,5 +55,5 @@ A place for all the commands you might need testing and debugging features
 | `poetry run vets-app-manage makemigrations`  | Creates new migration files if needed (models were updated)                |   
 | `poetry run vets-app-manage migrate`         | Run migrations into database (required before an empty db will work)       |
 | `poetry run vets-app-manage dbshell`         | Drop into sql session on the database                                      |
-| `poetry run vets-app-manage runserver` | Run local dev server on [](http://localhost:)
+| `poetry run vets-app-manage runserver`       | Run local dev server on [](http://localhost:)
 

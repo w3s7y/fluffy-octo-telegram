@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: mandatory
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:w3s7y/fluffy-octo-telegram.git
+        revision: HEAD
+        directories:
+          - path: deploy-descriptors/cluster/*
+
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: default
+      source:
+        repoURL: git@github.com:w3s7y/fluffy-octo-telegram.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
